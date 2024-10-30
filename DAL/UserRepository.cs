@@ -1,13 +1,24 @@
 ﻿using BLL.Interfaces;
 using BLL.Models;
+using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
-
 
 namespace DAL
 {
     public class UserRepository : IUserRepository
     {
-        private string connectionString = "Server=Mathijs\\MSSQLSERVER02;Database=8BallArena;User Id=Mathijs;Password=Semester2;TrustServerCertificate=True;Encrypt=False;Trusted_Connection=true;";
+        private readonly string connectionString;
+
+        public UserRepository(IConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            connectionString = configuration.GetConnectionString("DefaultConnection")
+                               ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        }
 
         public List<User> GetAllUsers()
         {

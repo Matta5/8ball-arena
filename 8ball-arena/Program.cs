@@ -1,13 +1,19 @@
+using BLL;
 using BLL.Interfaces;
 using DAL;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load configuration from appsettings.json
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddSingleton(builder.Configuration);
+builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 var app = builder.Build();
 

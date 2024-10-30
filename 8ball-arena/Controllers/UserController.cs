@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.Mvc;
 using DAL;
 using BLL.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace _8ball_arena.Controllers
 {
     public class UserController : Controller
     {
-        private UserService userService;
+        private readonly UserService userService;
 
-
-        public UserController()
+        public UserController(UserService userService)
         {
-            userService = new UserService(new UserRepository());
+            this.userService = userService;
         }
 
         // GET: UserController
