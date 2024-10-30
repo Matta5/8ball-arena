@@ -1,7 +1,13 @@
+using BLL.Interfaces;
+using DAL;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddSingleton(builder.Configuration);
 
 var app = builder.Build();
 
