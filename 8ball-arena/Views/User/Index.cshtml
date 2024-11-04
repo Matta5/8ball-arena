@@ -33,7 +33,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.gamesPlayed)
             </th>
-            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.profile_picture)
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -60,6 +62,11 @@
             <td>
                 @Html.DisplayFor(modelItem => item.gamesPlayed)
             </td>
+                <td>
+                    <img src="@item.profile_picture" alt="Profile Picture" style="max-width: 100px; max-height: 100px;" />
+
+
+                </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |

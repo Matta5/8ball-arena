@@ -15,5 +15,7 @@
         public int rating { get; set; } = 0;
 
         public int gamesPlayed { get; set; } = 0;
+
+        public string profile_picture { get; set; }
     }
 }

@@ -6,13 +6,6 @@ namespace _8ball_arena.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
             var username = HttpContext.Session.GetString("Username");

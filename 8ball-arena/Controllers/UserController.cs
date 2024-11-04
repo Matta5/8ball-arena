@@ -32,21 +32,49 @@ namespace _8ball_arena.Controllers
         // GET: UserController/Create
         public ActionResult Create()
         {
+
+
             return View();
         }
 
-        // POST: UserController/Create
+        // POST: User/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(User user, IFormFile profilePicture)
         {
             try
             {
+                // Check if a file has been uploaded
+                if (profilePicture != null)
+                {
+                    // Check if the file is an image
+                    var extension = Path.GetExtension(profilePicture.FileName).ToLower();
+                    if (extension != ".jpg" && extension != ".png")
+                    {
+                        ModelState.AddModelError("", "Invalid file type. Only JPG and PNG file types are allowed.");
+                        return View(user);
+                    }
+
+                    // Save the profile picture to wwwroot/Images and get the file path
+                    var fileName = Path.GetFileName(profilePicture.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await profilePicture.CopyToAsync(fileStream);
+                    }
+
+                    // Save the relative file path to the database
+                    user.profile_picture = Path.Combine("Images", fileName);
+                }
+
+                // User creation logic
+                userService.CreateUser(user);
+
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return View("Error");
             }
         }
 

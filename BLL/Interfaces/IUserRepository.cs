@@ -8,6 +8,8 @@ namespace BLL.Interfaces
         public User GetUserByNameAndPassword(string username, string password);
         public bool ValidateUserCredentials(string username, string password);
 
+        public void CreateUser(User user);
+
 
     }
 }

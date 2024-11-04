@@ -18,7 +18,7 @@ namespace _8ball_arena.Controllers
         {
             return View();
         }
-
+         
         [HttpPost]
         public IActionResult Index(string username, string password)
         {
