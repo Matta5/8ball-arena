@@ -16,11 +16,6 @@ namespace _8ball_arena.Controllers
         public IActionResult Index()
         {
             var username = HttpContext.Session.GetString("Username");
-            if (string.IsNullOrEmpty(username))
-            {
-                return RedirectToAction("Index", "Login");
-            }
-
             ViewBag.Username = username;
             return View();
         }
@@ -37,3 +32,4 @@ namespace _8ball_arena.Controllers
         }
     }
 }
+

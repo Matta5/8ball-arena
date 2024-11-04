@@ -1,9 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using BLL.Interfaces;
 
 namespace _8ball_arena.Controllers
 {
     public class LoginController : Controller
     {
+        private readonly IUserRepository _userRepository;
+
+        public LoginController(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -13,8 +22,7 @@ namespace _8ball_arena.Controllers
         [HttpPost]
         public IActionResult Index(string username, string password)
         {
-            // Dummy check for username and password
-            if (username == "admin" && password == "password")
+            if (_userRepository.ValidateUserCredentials(username, password))
             {
                 HttpContext.Session.SetString("Username", username);
                 return RedirectToAction("Index", "Home");
@@ -27,7 +35,7 @@ namespace _8ball_arena.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Index", "Login");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

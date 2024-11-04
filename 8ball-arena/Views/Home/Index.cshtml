@@ -1,15 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Welcome to 8ball Arena!</h2>
 
-
-
-    <h2>Welcome, @ViewBag.Username!</h2>
-
+@if (string.IsNullOrEmpty(ViewBag.Username))
+{
+    <p>You are not logged in. <a asp-controller="Login" asp-action="Index">Login</a></p>
+}
+else
+{
+    <p>Welcome, @ViewBag.Username!</p>
     <a asp-controller="Login" asp-action="Logout">Logout</a>
+}
 
-</div>

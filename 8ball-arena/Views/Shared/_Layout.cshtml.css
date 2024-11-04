@@ -1,48 +1,46 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿/* Sidebar link styles */
+.sidebar a.nav-link, .sidebar a.navbar-brand {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    transition: all 0.3s ease;
+    border-radius: 5px;
 }
 
-a {
-  color: #0077cc;
+/* Hover effect on sidebar links */
+.sidebar a.nav-link:hover, .sidebar a.navbar-brand:hover {
+    background-color: #1b6ec2;
+    color: #ffffff;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/* Active link styling - apply this class to the active page link */
+.sidebar a.nav-link.active {
+    background-color: #0077cc; /* Active background color */
+    color: #ffffff; /* Text color for active link */
+    font-weight: bold; /* Bold text for active link */
+    border-left: 4px solid #1861ac; /* Optional left border to emphasize active */
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/* Optional styling for active link's box shadow */
+.sidebar a.nav-link.active:hover {
+    background-color: #1861ac;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+/* Sidebar link styles */
+.sidebar a.nav-link, .sidebar a.navbar-brand {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    transition: all 0.3s ease;
+    border-radius: 5px;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+/* Hover effect on sidebar links */
+.sidebar a.nav-link:hover, .sidebar a.navbar-brand:hover {
+    background-color: #1b6ec2; /* Darker blue on hover */
+    color: #ffffff; /* Ensure text color stays white on hover */
+    font-weight: bold; /* Optional: make text bold on hover */
 }
+
