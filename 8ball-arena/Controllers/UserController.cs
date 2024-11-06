@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DAL;
 using BLL.Models;
-using Microsoft.Extensions.Configuration;
+using _8ball_arena.Models;
 
 namespace _8ball_arena.Controllers
 {
@@ -18,9 +18,19 @@ namespace _8ball_arena.Controllers
         // GET: UserController
         public ActionResult Index()
         {
+            List<UserDTO> userDTOs = userService.GetAllUsers();
+            List<UserViewModel> userViewModels = userDTOs.Select(u => new UserViewModel
+            {
+                Id = u.id,
+                Username = u.username,
+                Email = u.email,
+                ProfilePicture = u.profile_picture,
+                Wins = u.wins,
+                Rating = u.rating,
+                GamesPlayed = u.gamesPlayed
+            }).ToList();
 
-            List<User> users = userService.GetAllUsers();
-            return View(users);
+            return View(userViewModels);
         }
 
         // GET: UserController/Details/5
@@ -32,15 +42,13 @@ namespace _8ball_arena.Controllers
         // GET: UserController/Create
         public ActionResult Create()
         {
-
-
             return View();
         }
 
         // POST: User/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(User user, IFormFile profilePicture)
+        public async Task<IActionResult> Create(UserDTO user, IFormFile profilePicture)
         {
             try
             {

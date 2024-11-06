@@ -4,11 +4,11 @@ namespace BLL.Interfaces
 {
     public interface IUserRepository
     {
-        public List<User> GetAllUsers();
-        public User GetUserByNameAndPassword(string username, string password);
+        public List<UserDTO> GetAllUsers();
+        public UserDTO GetUserByNameAndPassword(string username, string password);
         public bool ValidateUserCredentials(string username, string password);
 
-        public void CreateUser(User user);
+        public void CreateUser(UserDTO user);
 
 
     }

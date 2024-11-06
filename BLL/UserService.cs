@@ -14,12 +14,12 @@ namespace BLL
             this.userRepository = userRepository;
         }
 
-        public List<User> GetAllUsers()
+        public List<UserDTO> GetAllUsers()
         {
             return userRepository.GetAllUsers();
         }
 
-        public User GetUserByNameAndPassword(string username, string password)
+        public UserDTO GetUserByNameAndPassword(string username, string password)
         {
             return userRepository.GetUserByNameAndPassword(username, password);
         }
@@ -29,7 +29,7 @@ namespace BLL
             return userRepository.ValidateUserCredentials(username, password);
         }
 
-        public bool CreateUser(User user)
+        public bool CreateUser(UserDTO user)
         {
             string passwordValidationResult = IsValidPassword(user.password);
             if (passwordValidationResult != null)

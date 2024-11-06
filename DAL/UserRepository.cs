@@ -20,9 +20,9 @@ namespace DAL
                                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
 
-        public List<User> GetAllUsers()
+        public List<UserDTO> GetAllUsers()
         {
-            List<User> users = new List<User>();
+            List<UserDTO> users = new List<UserDTO>();
             using (SqlConnection s = new SqlConnection(connectionString))
             {
                 SqlCommand cmd = new SqlCommand("SELECT * FROM [User]", s);
@@ -31,7 +31,7 @@ namespace DAL
                 {
                     while (reader.Read())
                     {
-                        User u = new User();
+                        UserDTO u = new UserDTO();
                         u.id = reader.GetInt32(0);
                         u.username = reader.GetString(1);
                         u.email = reader.GetString(2);
@@ -39,14 +39,12 @@ namespace DAL
                         u.wins = reader.GetInt32(4);
                         u.rating = reader.GetInt32(5);
                         u.gamesPlayed = reader.GetInt32(6);
-                        // Check if profile_picture is NULL
                         if (!reader.IsDBNull(7))
                         {
                             u.profile_picture = reader.GetString(7);
                         }
                         else
                         {
-                            // Assign a default value if profile_picture is NULL
                             u.profile_picture = "Images/Default.jpg";
                         }
                         users.Add(u);
@@ -56,9 +54,9 @@ namespace DAL
             }
         }
 
-        public User GetUserById(int id)
+        public UserDTO GetUserById(int id)
         {
-            User user = null;
+            UserDTO user = null;
 
             using (SqlConnection s = new SqlConnection(connectionString))
             {
@@ -72,7 +70,7 @@ namespace DAL
                 {
                     if (reader.Read())
                     {
-                        user = new User
+                        user = new UserDTO
                         {
                             id = reader.GetInt32(0),
                             username = reader.GetString(1),
@@ -86,7 +84,7 @@ namespace DAL
             return user;
         }
 
-        public void CreateUser(User user)
+        public void CreateUser(UserDTO user)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
@@ -103,7 +101,7 @@ namespace DAL
             }
         }
 
-        public User GetUserByNameAndPassword(string username, string password)
+        public UserDTO GetUserByNameAndPassword(string username, string password)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
@@ -115,7 +113,7 @@ namespace DAL
                 {
                     if (reader.Read())
                     {
-                        User u = new User();
+                        UserDTO u = new UserDTO();
                         u.id = reader.GetInt32(0);
                         u.username = reader.GetString(1);
                         u.email = reader.GetString(2);
