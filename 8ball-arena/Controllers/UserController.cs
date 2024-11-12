@@ -1,8 +1,8 @@
 ﻿using BLL;
 using Microsoft.AspNetCore.Mvc;
-using DAL;
 using BLL.Models;
 using _8ball_arena.Models;
+using System.Linq;
 
 namespace _8ball_arena.Controllers
 {
@@ -24,7 +24,7 @@ namespace _8ball_arena.Controllers
                 Id = u.id,
                 Username = u.username,
                 Email = u.email,
-                ProfilePicture = u.profile_picture,
+                ProfilePicture = u.profilePicture,
                 Wins = u.wins,
                 Rating = u.rating,
                 GamesPlayed = u.gamesPlayed
@@ -36,8 +36,22 @@ namespace _8ball_arena.Controllers
         // GET: UserController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            UserDTO userDTO = userService.GetUserById(id);
+            UserViewModel userViewModel = new UserViewModel
+            {
+                Id = userDTO.id,
+                Username = userDTO.username,
+                Email = userDTO.email,
+                ProfilePicture = userDTO.profilePicture,
+                Wins = userDTO.wins,
+                Rating = userDTO.rating,
+                GamesPlayed = userDTO.gamesPlayed
+            };
+
+            // Pass the UserViewModel to the view
+            return View(userViewModel);
         }
+
 
         // GET: UserController/Create
         public ActionResult Create()
@@ -59,7 +73,7 @@ namespace _8ball_arena.Controllers
                     var extension = Path.GetExtension(profilePicture.FileName).ToLower();
                     if (extension != ".jpg" && extension != ".png")
                     {
-                        ModelState.AddModelError("", "Invalid file type. Only JPG and PNG file types are allowed.");
+                        ViewBag.FileError = "File must be a .jpg or .png image";
                         return View(user);
                     }
 
@@ -72,10 +86,15 @@ namespace _8ball_arena.Controllers
                     }
 
                     // Save the relative file path to the database
-                    user.profile_picture = Path.Combine("Images", fileName);
+                    user.profilePicture = Path.Combine("Images", fileName);
                 }
 
                 // User creation logic
+                if (!userService.CreateUser(user))
+                {
+                    ViewBag.PasswordError = "Password must include a capital letter and a number";
+                    return View(user);
+                }
                 userService.CreateUser(user);
 
                 return RedirectToAction(nameof(Index));

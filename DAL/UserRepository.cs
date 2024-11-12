@@ -25,7 +25,7 @@ namespace DAL
             List<UserDTO> users = new List<UserDTO>();
             using (SqlConnection s = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [User]", s);
+                SqlCommand cmd = new SqlCommand("SELECT * FROM  [User] ORDER BY  id DESC;", s);
                 s.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -41,11 +41,11 @@ namespace DAL
                         u.gamesPlayed = reader.GetInt32(6);
                         if (!reader.IsDBNull(7))
                         {
-                            u.profile_picture = reader.GetString(7);
+                            u.profilePicture = reader.GetString(7);
                         }
                         else
                         {
-                            u.profile_picture = "Images/Default.jpg";
+                            u.profilePicture = "Images/Default.jpg";
                         }
                         users.Add(u);
                     }
@@ -95,7 +95,7 @@ namespace DAL
                 cmd.Parameters.AddWithValue("@Username", user.username);
                 cmd.Parameters.AddWithValue("@Email", user.email);
                 cmd.Parameters.AddWithValue("@Password", user.password);
-                cmd.Parameters.AddWithValue("@ProfilePicture", user.profile_picture ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@ProfilePicture", user.profilePicture ?? (object)DBNull.Value);
 
                 cmd.ExecuteNonQuery();
             }
@@ -128,16 +128,24 @@ namespace DAL
             return null;
         }
 
-        public bool ValidateUserCredentials(string username, string password)
+        public bool ValidateUserCredentials(string username, string password, out int id)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM [User] WHERE username = @username AND password = @password", s);
+                SqlCommand cmd = new SqlCommand("SELECT id FROM [User] WHERE username = @username AND password = @password", s);
                 cmd.Parameters.AddWithValue("@username", username);
                 cmd.Parameters.AddWithValue("@password", password);
+
                 s.Open();
-                int count = (int)cmd.ExecuteScalar();
-                return count == 1;
+                var result = cmd.ExecuteScalar();
+                id = -1;
+                if (result != null)
+                {
+                    id = (int)result;
+                    return true;
+                }
+               
+                return false;
             }
         }
     }

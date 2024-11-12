@@ -6,11 +6,10 @@
 
 @if (string.IsNullOrEmpty(ViewBag.Username))
 {
-    <p>You are not logged in. <a asp-controller="Login" asp-action="Index">Login</a></p>
+    <p>You are not logged in.</p>
 }
 else
 {
     <p>Welcome, @ViewBag.Username!</p>
-    <a asp-controller="Login" asp-action="Logout">Logout</a>
 }
 

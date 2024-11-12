@@ -8,8 +8,8 @@ namespace _8ball_arena.Controllers
     {
         public IActionResult Index()
         {
-            var username = HttpContext.Session.GetString("Username");
-            ViewBag.Username = username;
+            var id = HttpContext.Session.GetInt32("Id");
+            ViewBag.Username = id.ToString();
             return View();
         }
 

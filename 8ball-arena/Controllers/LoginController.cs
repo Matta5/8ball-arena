@@ -16,15 +16,21 @@ namespace _8ball_arena.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            if (HttpContext.Session !=  null && HttpContext.Session.GetInt32("id") != null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return View();
         }
-         
+
         [HttpPost]
         public IActionResult Index(string username, string password)
         {
-            if (_userRepository.ValidateUserCredentials(username, password))
+            int id;
+            if (_userRepository.ValidateUserCredentials(username, password, out id))
             {
-                HttpContext.Session.SetString("Username", username);
+                HttpContext.Session.SetInt32("Id", id);
                 return RedirectToAction("Index", "Home");
             }
 
@@ -37,5 +43,7 @@ namespace _8ball_arena.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+
+
     }
 }

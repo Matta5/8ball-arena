@@ -9,6 +9,6 @@
         public int wins { get; set; } = 0;
         public int rating { get; set; } = 0;
         public int gamesPlayed { get; set; } = 0;
-        public string profile_picture { get; set; }
+        public string profilePicture { get; set; }
     }
 }

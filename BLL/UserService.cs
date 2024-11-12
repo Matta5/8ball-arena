@@ -19,14 +19,19 @@ namespace BLL
             return userRepository.GetAllUsers();
         }
 
+        public UserDTO GetUserById(int id)
+        {
+            return userRepository.GetUserById(id);
+        }
+
         public UserDTO GetUserByNameAndPassword(string username, string password)
         {
             return userRepository.GetUserByNameAndPassword(username, password);
         }
 
-        public bool ValidateUserCredentials(string username, string password)
+        public bool ValidateUserCredentials(string username, string password, out int id)
         {
-            return userRepository.ValidateUserCredentials(username, password);
+            return userRepository.ValidateUserCredentials(username, password, out id);
         }
 
         public bool CreateUser(UserDTO user)

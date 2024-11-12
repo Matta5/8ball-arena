@@ -1,4 +1,6 @@
-﻿namespace _8ball_arena.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace _8ball_arena.Models
 {
     public class UserViewModel
     {
