@@ -9,7 +9,7 @@ namespace _8ball_arena.Controllers
         public IActionResult Index()
         {
             var id = HttpContext.Session.GetInt32("Id");
-            ViewBag.Username = id.ToString();
+            ViewBag.Id = id.ToString();
             return View();
         }
 

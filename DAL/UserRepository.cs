@@ -62,7 +62,7 @@ namespace DAL
             {
                 s.Open();
 
-                string selectQuery = "SELECT * FROM [User] WHERE user_id = @UserId";
+                string selectQuery = "SELECT * FROM [User] WHERE id = @UserId";
                 SqlCommand cmd = new SqlCommand(selectQuery, s);
                 cmd.Parameters.AddWithValue("@UserId", id);
 
@@ -70,13 +70,23 @@ namespace DAL
                 {
                     if (reader.Read())
                     {
-                        user = new UserDTO
+                        UserDTO u = new UserDTO();
+                        u.id = reader.GetInt32(0);
+                        u.username = reader.GetString(1);
+                        u.email = reader.GetString(2);
+                        u.password = reader.GetString(3);
+                        u.wins = reader.GetInt32(4);
+                        u.rating = reader.GetInt32(5);
+                        u.gamesPlayed = reader.GetInt32(6);
+                        if (!reader.IsDBNull(7))
                         {
-                            id = reader.GetInt32(0),
-                            username = reader.GetString(1),
-                            email = reader.GetString(2),
-                            password = reader.GetString(3)
-                        };
+                            u.profilePicture = reader.GetString(7);
+                        }
+                        else
+                        {
+                            u.profilePicture = "Images/Default.jpg";
+                        }
+                        return u;
                     }
                 }
             }

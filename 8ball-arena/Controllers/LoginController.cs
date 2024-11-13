@@ -16,7 +16,7 @@ namespace _8ball_arena.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            if (HttpContext.Session !=  null && HttpContext.Session.GetInt32("id") != null)
+            if (HttpContext.Session != null && HttpContext.Session.GetInt32("Id") != null)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -43,6 +43,7 @@ namespace _8ball_arena.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+
 
 
     }

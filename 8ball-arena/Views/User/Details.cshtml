@@ -1,0 +1,77 @@
+﻿@model _8ball_arena.Models.UserViewModel
+
+@{
+    ViewData["Title"] = "Account";
+    var sessionId = ViewBag.SessionId as int?;
+}
+
+<h1>View</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Username)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Username)
+        </dd>
+        @if (sessionId == Model.Id)
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProfilePicture)
+        </dt>
+        <dd class="col-sm-10">
+            <img src="@Model.ProfilePicture" alt="Profile Picture" />
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Wins)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Wins)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Rating)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Rating)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.GamesPlayed)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.GamesPlayed)
+        </dd>
+    </dl>
+</div>
+
+@if (sessionId == Model.Id)
+{
+    <div>
+        <h3>This is your profile</h3>
+        @Html.ActionLink("Edit Profile", "Edit", new { id = Model.Id }, new { @class = "btn btn-primary" })
+    </div>
+}
+else
+{
+    <div>
+        <h3>This is someone else's profile</h3>
+    </div>
+}
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

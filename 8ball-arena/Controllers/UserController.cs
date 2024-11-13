@@ -36,6 +36,7 @@ namespace _8ball_arena.Controllers
         // GET: UserController/Details/5
         public ActionResult Details(int id)
         {
+            var sessionId = HttpContext.Session.GetInt32("Id");
             UserDTO userDTO = userService.GetUserById(id);
             UserViewModel userViewModel = new UserViewModel
             {
@@ -48,9 +49,10 @@ namespace _8ball_arena.Controllers
                 GamesPlayed = userDTO.gamesPlayed
             };
 
-            // Pass the UserViewModel to the view
+            ViewBag.SessionId = sessionId;
             return View(userViewModel);
         }
+
 
 
         // GET: UserController/Create
@@ -62,7 +64,7 @@ namespace _8ball_arena.Controllers
         // POST: User/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(UserDTO user, IFormFile profilePicture)
+        public ActionResult Create(UserDTO user, IFormFile profilePicture)
         {
             try
             {
@@ -82,7 +84,7 @@ namespace _8ball_arena.Controllers
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
-                        await profilePicture.CopyToAsync(fileStream);
+                        profilePicture.CopyTo(fileStream);
                     }
 
                     // Save the relative file path to the database

@@ -4,12 +4,12 @@
 
 <h2>Welcome to 8ball Arena!</h2>
 
-@if (string.IsNullOrEmpty(ViewBag.Username))
+@if (string.IsNullOrEmpty(ViewBag.Id))
 {
     <p>You are not logged in.</p>
 }
 else
 {
-    <p>Welcome, @ViewBag.Username!</p>
+    <p>Welcome, @ViewBag.Id!</p>
 }
 
