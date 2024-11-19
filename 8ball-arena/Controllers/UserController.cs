@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace _8ball_arena.Controllers
 {
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly UserService userService;
 

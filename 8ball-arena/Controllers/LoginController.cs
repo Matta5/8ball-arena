@@ -4,7 +4,7 @@ using BLL.Interfaces;
 
 namespace _8ball_arena.Controllers
 {
-    public class LoginController : Controller
+    public class LoginController : BaseController
     {
         private readonly IUserRepository _userRepository;
 
@@ -43,6 +43,7 @@ namespace _8ball_arena.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+
 
 
 

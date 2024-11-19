@@ -4,12 +4,11 @@ using System.Diagnostics;
 
 namespace _8ball_arena.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public IActionResult Index()
         {
-            var id = HttpContext.Session.GetInt32("Id");
-            ViewBag.Id = id.ToString();
+            
             return View();
         }
 
