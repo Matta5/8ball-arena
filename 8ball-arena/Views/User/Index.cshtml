@@ -19,6 +19,7 @@
             <th>@Html.DisplayNameFor(model => model.Rating)</th>
             <th>@Html.DisplayNameFor(model => model.GamesPlayed)</th>
             <th>@Html.DisplayNameFor(model => model.ProfilePicture)</th>
+            <th>@Html.DisplayNameFor(model => model.DateJoined)</th> <!-- New column -->
         </tr>
     </thead>
     <tbody>
@@ -32,6 +33,7 @@
                 <td>@Html.DisplayFor(modelItem => item.Rating)</td>
                 <td>@Html.DisplayFor(modelItem => item.GamesPlayed)</td>
                 <td><img src="@item.ProfilePicture" alt="Profile Picture" style="max-width: 100px; max-height: 100px;" /></td>
+                <td>@item.DateJoined.ToString("yyyy-MM-dd")</td> 
                 <td>
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
@@ -41,3 +43,4 @@
         }
     </tbody>
 </table>
+

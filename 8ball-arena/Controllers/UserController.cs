@@ -27,7 +27,8 @@ namespace _8ball_arena.Controllers
                 ProfilePicture = u.profilePicture,
                 Wins = u.wins,
                 Rating = u.rating,
-                GamesPlayed = u.gamesPlayed
+                GamesPlayed = u.gamesPlayed,
+                DateJoined = u.dateJoined
             }).ToList();
 
             return View(userViewModels);
@@ -46,7 +47,8 @@ namespace _8ball_arena.Controllers
                 ProfilePicture = userDTO.profilePicture,
                 Wins = userDTO.wins,
                 Rating = userDTO.rating,
-                GamesPlayed = userDTO.gamesPlayed
+                GamesPlayed = userDTO.gamesPlayed,
+                DateJoined = userDTO.dateJoined
             };
 
             ViewBag.SessionId = sessionId;
@@ -61,7 +63,6 @@ namespace _8ball_arena.Controllers
             return View();
         }
 
-        // POST: User/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(UserDTO user, IFormFile profilePicture)
@@ -97,7 +98,6 @@ namespace _8ball_arena.Controllers
                     ViewBag.PasswordError = "Password must include a capital letter and a number";
                     return View(user);
                 }
-                userService.CreateUser(user);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -106,6 +106,7 @@ namespace _8ball_arena.Controllers
                 return View("Error");
             }
         }
+
 
         // GET: UserController/Edit/5
         public ActionResult Edit(int id)

@@ -41,6 +41,7 @@ namespace BLL
             {
                 return false;
             }
+            user.dateJoined = DateTime.Now;
             userRepository.CreateUser(user);
             return true;
         }

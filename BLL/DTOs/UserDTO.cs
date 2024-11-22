@@ -10,5 +10,6 @@
         public int rating { get; set; } = 0;
         public int gamesPlayed { get; set; } = 0;
         public string profilePicture { get; set; }
+        public DateTime dateJoined { get; set; }
     }
 }

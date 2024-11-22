@@ -1,6 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -19,17 +17,17 @@
             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Users</a>
-            @{if (string.IsNullOrEmpty(ViewBag.Id))
-            { 
-                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Login</a>
-                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Create">Register</a>
-            }
-            else
-            {
+            @{
+                if (string.IsNullOrEmpty(ViewBag.Id))
+                {
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Login</a>
+                    <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Create">Register</a>
+                }
+                else
+                {
                     <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Details" asp-route-id="@ViewBag.Id">Profile</a>
-
-                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Logout">Logout</a>
-            }
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Logout">Logout</a>
+                }
             }
         </aside>
 

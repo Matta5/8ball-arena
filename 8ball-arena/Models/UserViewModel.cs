@@ -11,5 +11,6 @@ namespace _8ball_arena.Models
         public int Wins { get; set; }
         public int Rating { get; set; }
         public int GamesPlayed { get; set; }
+        public DateTime DateJoined { get; set; }
     }
 }
