@@ -1,6 +1,6 @@
 ﻿using BLL;
 using Microsoft.AspNetCore.Mvc;
-using BLL.Models;
+using BLL.DTOs;
 using _8ball_arena.Models;
 using System.Linq;
 
@@ -21,14 +21,14 @@ namespace _8ball_arena.Controllers
             List<UserDTO> userDTOs = userService.GetAllUsers();
             List<UserViewModel> userViewModels = userDTOs.Select(u => new UserViewModel
             {
-                Id = u.id,
-                Username = u.username,
-                Email = u.email,
-                ProfilePicture = u.profilePicture,
-                Wins = u.wins,
-                Rating = u.rating,
-                GamesPlayed = u.gamesPlayed,
-                DateJoined = u.dateJoined
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email,
+                ProfilePicture = u.ProfilePicture,
+                Wins = u.Wins,
+                Rating = u.Rating,
+                GamesPlayed = u.GamesPlayed,
+                DateJoined = u.DateJoined
             }).ToList();
 
             return View(userViewModels);
@@ -41,14 +41,14 @@ namespace _8ball_arena.Controllers
             UserDTO userDTO = userService.GetUserById(id);
             UserViewModel userViewModel = new UserViewModel
             {
-                Id = userDTO.id,
-                Username = userDTO.username,
-                Email = userDTO.email,
-                ProfilePicture = userDTO.profilePicture,
-                Wins = userDTO.wins,
-                Rating = userDTO.rating,
-                GamesPlayed = userDTO.gamesPlayed,
-                DateJoined = userDTO.dateJoined
+                Id = userDTO.Id,
+                Username = userDTO.Username,
+                Email = userDTO.Email,
+                ProfilePicture = userDTO.ProfilePicture,
+                Wins = userDTO.Wins,
+                Rating = userDTO.Rating,
+                GamesPlayed = userDTO.GamesPlayed,
+                DateJoined = userDTO.DateJoined
             };
 
             ViewBag.SessionId = sessionId;
@@ -89,7 +89,7 @@ namespace _8ball_arena.Controllers
                     }
 
                     // Save the relative file path to the database
-                    user.profilePicture = Path.Combine("Images", fileName);
+                    user.ProfilePicture = Path.Combine("Images", fileName);
                 }
 
                 // User creation logic

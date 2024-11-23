@@ -1,4 +1,4 @@
-﻿using BLL.Models;
+﻿using BLL.DTOs;
 
 namespace BLL.Interfaces
 {

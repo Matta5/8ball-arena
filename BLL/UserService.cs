@@ -1,5 +1,5 @@
 ﻿using BLL.Interfaces;
-using BLL.Models;
+using BLL.DTOs;
 using System.Text.RegularExpressions;
 
 namespace BLL
@@ -36,12 +36,12 @@ namespace BLL
 
         public bool CreateUser(UserDTO user)
         {
-            string passwordValidationResult = IsValidPassword(user.password);
+            string passwordValidationResult = IsValidPassword(user.Password);
             if (passwordValidationResult != null)
             {
                 return false;
             }
-            user.dateJoined = DateTime.Now;
+            user.DateJoined = DateTime.Now;
             userRepository.CreateUser(user);
             return true;
         }

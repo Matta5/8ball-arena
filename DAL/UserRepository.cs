@@ -1,5 +1,5 @@
 ﻿using BLL.Interfaces;
-using BLL.Models;
+using BLL.DTOs;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 
@@ -25,37 +25,32 @@ namespace DAL
             List<UserDTO> users = new List<UserDTO>();
             using (SqlConnection s = new SqlConnection(connectionString))
             {
-                //using gebruiken
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [User] ORDER BY id DESC;", s);
+                string query = @"SELECT id, username, email, password, wins, rating, games_played, profile_picture, date_joined 
+                         FROM [Users] 
+                         ORDER BY id DESC;";
+                SqlCommand cmd = new SqlCommand(query, s);
                 s.Open();
-                //try catch gebruiken
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        UserDTO u = new UserDTO();
-                        u.id = reader.GetInt32(0);
-                        u.username = reader.GetString(1);
-                        u.email = reader.GetString(2);
-                        u.password = reader.GetString(3);
-                        u.wins = reader.GetInt32(4);
-                        u.rating = reader.GetInt32(5);
-                        u.gamesPlayed = reader.GetInt32(6);
-                        
-                        if (!reader.IsDBNull(7))
+                        UserDTO u = new UserDTO
                         {
-                            u.profilePicture = reader.GetString(7);
-                        }
-                        else
-                        {
-                            u.profilePicture = "/Images/Default.jpg";
-                        }
-                        u.dateJoined = reader.GetDateTime(8);
+                            Id = reader.GetInt32(0),
+                            Username = reader.GetString(1),
+                            Email = reader.GetString(2),
+                            Password = reader.GetString(3),
+                            Wins = reader.GetInt32(4),
+                            Rating = reader.GetInt32(5),
+                            GamesPlayed = reader.GetInt32(6),
+                            ProfilePicture = !reader.IsDBNull(7) ? reader.GetString(7) : "/Images/Default.jpg",
+                            DateJoined = reader.GetDateTime(8)
+                        };
                         users.Add(u);
                     }
                 }
-                return users;
             }
+            return users;
         }
 
         public UserDTO GetUserById(int id)
@@ -64,59 +59,43 @@ namespace DAL
             using (SqlConnection s = new SqlConnection(connectionString))
             {
                 s.Open();
-                string selectQuery = "SELECT * FROM [User] WHERE id = @UserId";
-                SqlCommand cmd = new SqlCommand(selectQuery, s);
+                string query = @"SELECT id, username, email, password, wins, rating, games_played, profile_picture, date_joined 
+                         FROM [Users] 
+                         WHERE id = @UserId";
+                SqlCommand cmd = new SqlCommand(query, s);
                 cmd.Parameters.AddWithValue("@UserId", id);
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        UserDTO u = new UserDTO();
-                        u.id = reader.GetInt32(0);
-                        u.username = reader.GetString(1);
-                        u.email = reader.GetString(2);
-                        u.password = reader.GetString(3);
-                        u.wins = reader.GetInt32(4);
-                        u.rating = reader.GetInt32(5);
-                        u.gamesPlayed = reader.GetInt32(6);                        
-                        if (!reader.IsDBNull(7))
+                        user = new UserDTO
                         {
-                            u.profilePicture = reader.GetString(7);
-                        }
-                        else
-                        {
-                            u.profilePicture = "/Images/Default.jpg";
-                        }
-                        u.dateJoined = reader.GetDateTime(8);
-                        return u;
+                            Id = reader.GetInt32(0),
+                            Username = reader.GetString(1),
+                            Email = reader.GetString(2),
+                            Password = reader.GetString(3),
+                            Wins = reader.GetInt32(4),
+                            Rating = reader.GetInt32(5),
+                            GamesPlayed = reader.GetInt32(6),
+                            ProfilePicture = !reader.IsDBNull(7) ? reader.GetString(7) : "/Images/Default.jpg",
+                            DateJoined = reader.GetDateTime(8)
+                        };
                     }
                 }
             }
             return user;
         }
 
-        public void CreateUser(UserDTO user)
-        {
-            using (SqlConnection s = new SqlConnection(connectionString))
-            {
-                s.Open();
-                string insertQuery = "INSERT INTO [User] (username, email, password, profile_picture, date_joined) VALUES (@Username, @Email, @Password, @ProfilePicture, @DateJoined)";
-                SqlCommand cmd = new SqlCommand(insertQuery, s);
-                cmd.Parameters.AddWithValue("@Username", user.username);
-                cmd.Parameters.AddWithValue("@Email", user.email);
-                cmd.Parameters.AddWithValue("@Password", user.password);
-                cmd.Parameters.AddWithValue("@ProfilePicture", user.profilePicture ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@DateJoined", DateTime.Now);
-                cmd.ExecuteNonQuery();
-            }
-        }
 
 
         public UserDTO GetUserByNameAndPassword(string username, string password)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("SELECT * FROM [User] WHERE username = @username AND password = @password", s);
+                string query = @"SELECT id, username, email, password, wins, rating, games_played, profile_picture, date_joined 
+                         FROM [Users] 
+                         WHERE username = @username AND password = @password";
+                SqlCommand cmd = new SqlCommand(query, s);
                 cmd.Parameters.AddWithValue("@username", username);
                 cmd.Parameters.AddWithValue("@password", password);
                 s.Open();
@@ -124,15 +103,18 @@ namespace DAL
                 {
                     if (reader.Read())
                     {
-                        UserDTO u = new UserDTO();
-                        u.id = reader.GetInt32(0);
-                        u.username = reader.GetString(1);
-                        u.email = reader.GetString(2);
-                        u.password = reader.GetString(3);
-                        u.wins = reader.GetInt32(4);
-                        u.rating = reader.GetInt32(5);
-                        u.gamesPlayed = reader.GetInt32(6);
-                        return u;
+                        return new UserDTO
+                        {
+                            Id = reader.GetInt32(0),
+                            Username = reader.GetString(1),
+                            Email = reader.GetString(2),
+                            Password = reader.GetString(3),
+                            Wins = reader.GetInt32(4),
+                            Rating = reader.GetInt32(5),
+                            GamesPlayed = reader.GetInt32(6),
+                            ProfilePicture = !reader.IsDBNull(7) ? reader.GetString(7) : "/Images/Default.jpg",
+                            DateJoined = reader.GetDateTime(8)
+                        };
                     }
                 }
             }
@@ -143,7 +125,8 @@ namespace DAL
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
-                SqlCommand cmd = new SqlCommand("SELECT id FROM [User] WHERE username = @username AND password = @password", s);
+                string query = "SELECT id FROM [Users] WHERE username = @username AND password = @password";
+                SqlCommand cmd = new SqlCommand(query, s);
                 cmd.Parameters.AddWithValue("@username", username);
                 cmd.Parameters.AddWithValue("@password", password);
 
@@ -155,9 +138,26 @@ namespace DAL
                     id = (int)result;
                     return true;
                 }
-               
+
                 return false;
             }
         }
+
+        public void CreateUser(UserDTO user)
+        {
+            using (SqlConnection s = new SqlConnection(connectionString))
+            {
+                s.Open();
+                string insertQuery = "INSERT INTO [Users] (username, email, password, profile_picture, date_joined) VALUES (@Username, @Email, @Password, @ProfilePicture, @DateJoined)";
+                SqlCommand cmd = new SqlCommand(insertQuery, s);
+                cmd.Parameters.AddWithValue("@Username", user.Username);
+                cmd.Parameters.AddWithValue("@Email", user.Email);
+                cmd.Parameters.AddWithValue("@Password", user.Password);
+                cmd.Parameters.AddWithValue("@ProfilePicture", user.ProfilePicture ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@DateJoined", DateTime.Now);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 }
