@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BLL.DTOs;
 
 namespace _8ball_arena.Models
 {
+
     public class UserViewModel
     {
         public int Id { get; set; }
@@ -12,5 +13,10 @@ namespace _8ball_arena.Models
         public int Rating { get; set; }
         public int GamesPlayed { get; set; }
         public DateTime DateJoined { get; set; }
+
+        public List<DuelDTO> Duels { get; set; } = new List<DuelDTO>();
+        public List<DuelDTO> CompletedDuels  => Duels.Where(d => d.Status == "Completed").ToList();
+        public List<DuelDTO> ActiveDuels => Duels.Where(d => d.Status == "Pending").ToList();
     }
+
 }

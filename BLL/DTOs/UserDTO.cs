@@ -13,7 +13,8 @@
         public DateTime DateJoined { get; set; }
 
 
-        public List<DuelDTO> ActiveDuels { get; set; } = new List<DuelDTO>();
-        public List<DuelDTO> CompletedDuels { get; set; } = new List<DuelDTO>();
+        public List<DuelDTO> Duels { get; set; } = new List<DuelDTO>();
+        public List<DuelDTO> CompletedDuels => Duels.Where(d => d.Status == "Completed").ToList();
+        public List<DuelDTO> ActiveDuels => Duels.Where(d => d.Status == "Pending").ToList();
     }
 }

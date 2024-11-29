@@ -13,7 +13,9 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IDuelRepository, DuelRepository>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<DuelService>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 // Add session services

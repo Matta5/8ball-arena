@@ -1,0 +1,25 @@
+﻿@model _8ball_arena.Models.DuelViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Duel Details</h1>
+
+<p>Duel ID: @Model.Id</p>
+<p>Status: @Model.Status</p>
+<p>Created: @Model.DateCreated</p>
+
+<h2>Participants</h2>
+<ul>
+    @foreach (var participant in Model.Participants)
+    {
+        <li>
+            Username: @participant.Username 
+            @if (participant.IsWinner.Value)
+            {
+                <span>(Winner)</span>
+            }
+        </li>
+    }
+</ul>

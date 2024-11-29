@@ -9,10 +9,12 @@ namespace _8ball_arena.Controllers
     public class UserController : BaseController
     {
         private readonly UserService userService;
+        private readonly DuelService duelService;
 
-        public UserController(UserService userService)
+        public UserController(UserService userService, DuelService duelService)
         {
             this.userService = userService;
+            this.duelService = duelService;
         }
 
         // GET: UserController
@@ -34,26 +36,65 @@ namespace _8ball_arena.Controllers
             return View(userViewModels);
         }
 
-        // GET: UserController/Details/5
-        public ActionResult Details(int id)
+
+        public IActionResult Details(int id)
         {
-            var sessionId = HttpContext.Session.GetInt32("Id");
-            UserDTO userDTO = userService.GetUserById(id);
-            UserViewModel userViewModel = new UserViewModel
+            // Fetch user data
+            var user = userService.GetUserById(id);
+            if (user == null)
+                return NotFound();
+
+            // Fetch duels for the user
+            var duels = duelService.GetDuelsForUser(id);
+
+            // Separate active and completed duels
+            var activeDuels = duels
+                .Where(d => d.Status == "Pending") // Assuming "Pending" indicates active duels
+                .Select(d => new DuelViewModel
+                {
+                    Id = d.Id,
+                    Status = d.Status,
+                    DateCreated = d.DateCreated,
+                    Participants = d.Participants.Select(p => new DuelParticipantViewModel
+                    {
+                        UserId = p.UserId,
+                        Username = p.Username,
+                        IsWinner = p.IsWinner
+                    }).ToList()
+                }).ToList();
+
+            var completedDuels = duels
+                .Where(d => d.Status == "Completed") // Assuming "Completed" indicates finished duels
+                .Select(d => new DuelViewModel
+                {
+                    Id = d.Id,
+                    Status = d.Status,
+                    DateCreated = d.DateCreated,
+                    Participants = d.Participants.Select(p => new DuelParticipantViewModel
+                    {
+                        UserId = p.UserId,
+                        Username = p.Username,
+                        IsWinner = p.IsWinner
+                    }).ToList()
+                }).ToList();
+
+            // Construct UserViewModel
+            var viewModel = new UserViewModel
             {
-                Id = userDTO.Id,
-                Username = userDTO.Username,
-                Email = userDTO.Email,
-                ProfilePicture = userDTO.ProfilePicture,
-                Wins = userDTO.Wins,
-                Rating = userDTO.Rating,
-                GamesPlayed = userDTO.GamesPlayed,
-                DateJoined = userDTO.DateJoined
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                ProfilePicture = user.ProfilePicture ?? "/Images/Default.jpg",
+                Wins = user.Wins,
+                Rating = user.Rating,
+                GamesPlayed = user.GamesPlayed,
+                Duels = duels
             };
 
-            ViewBag.SessionId = sessionId;
-            return View(userViewModel);
+            return View(viewModel);
         }
+
+
 
 
 
@@ -82,7 +123,7 @@ namespace _8ball_arena.Controllers
 
                     // Save the profile picture to wwwroot/Images and get the file path
                     var fileName = Path.GetFileName(profilePicture.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "/wwwroot/Images", fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         profilePicture.CopyTo(fileStream);
@@ -92,7 +133,6 @@ namespace _8ball_arena.Controllers
                     user.ProfilePicture = Path.Combine("Images", fileName);
                 }
 
-                // User creation logic
                 if (!userService.CreateUser(user))
                 {
                     ViewBag.PasswordError = "Password must include a capital letter and a number";
