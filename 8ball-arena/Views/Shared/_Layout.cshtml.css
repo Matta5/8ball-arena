@@ -8,6 +8,7 @@
     overflow-x: hidden;
     padding-top: 20px;
     z-index: 1000;
+    color: #ffffff;
 }
 
     .sidebar a.nav-link, .sidebar a.navbar-brand {

@@ -1,62 +1,101 @@
 ﻿@model BLL.DTOs.UserDTO
-
 @{
     ViewData["Title"] = "Create";
 }
+<link href="~/css/User/Create.css" rel="stylesheet" asp-append-version="true" />
 
 <h2>Create New User</h2>
-
 @using (Html.BeginForm("Create", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
     <div class="form-group">
         @Html.LabelFor(model => model.Username)
-        @Html.EditorFor(model => model.Username, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.EditorFor(model => model.Username, new { htmlAttributes = new { @class = "form-control bg-dark text-light" } })
         @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
     </div>
 
     <div class="form-group">
         @Html.LabelFor(model => model.Email)
-        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control bg-dark text-light" } })
         @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
     </div>
 
     <div class="form-group">
         @Html.LabelFor(model => model.Password)
-        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control bg-dark text-light" } })
         @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
         @if (ViewBag.PasswordError != null)
         {
-            <div style="color:red;">@ViewBag.PasswordError</div>
+            <div class="text-danger">@ViewBag.PasswordError</div>
         }
     </div>
 
     <div class="form-group">
         @Html.Label("Profile Picture")
-        <input type="file" name="profilePicture" id="profilePicture" onchange="loadFile(event)" />
-        <img id="preview" width="200" />
+        <div id="dropZone" class="drop-zone">
+            <p id="dropText">Drag & Drop your image here or click to upload</p>
+            <input type="file" name="profilePicture" id="profilePicture" class="file-input" onchange="handleFileUpload(event)" />
+            <img id="preview" class="preview-img" alt="Preview" style="display: none;" />
+        </div>
         @if (ViewBag.FileError != null)
-		{
-			<div style="color:red;">@ViewBag.FileError</div>
-		}
+        {
+            <div class="text-danger">@ViewBag.FileError</div>
+        }
     </div>
 
     <script>
-        var loadFile = function (event) {
-            var output = document.getElementById('preview');
-            output.src = URL.createObjectURL(event.target.files[0]);
-            output.onload = function () {
-                URL.revokeObjectURL(output.src) // free memory
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('profilePicture');
+        const previewImg = document.getElementById('preview');
+        const dropText = document.getElementById('dropText');
+
+        // Highlight drop zone on drag
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        // Handle drop
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload({ target: { files: [file] } });
+            }
+        });
+
+        // Handle file selection
+        const handleFileUpload = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    previewImg.src = reader.result;
+                    previewImg.style.display = "block";
+                    dropText.style.display = "none"; // Hide the drag-and-drop text
+                    dropZone.style.aspectRatio = ""; // Reset aspect ratio
+                };
+                reader.onloadend = () => {
+                    const img = new Image();
+                    img.src = reader.result;
+                    img.onload = () => {
+                        const aspectRatio = img.width / img.height;
+                        dropZone.style.aspectRatio = aspectRatio.toString();
+                    };
+                };
+                reader.readAsDataURL(file);
             }
         };
     </script>
 
-    <button type="submit" class="btn btn-primary">Create</button>
-
-
-
-
+    <button type="submit" class="btn btn-primary mt-3">Create</button>
 }

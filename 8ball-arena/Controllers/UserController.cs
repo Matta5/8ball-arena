@@ -39,17 +39,14 @@ namespace _8ball_arena.Controllers
 
         public IActionResult Details(int id)
         {
-            // Fetch user data
             var user = userService.GetUserById(id);
             if (user == null)
                 return NotFound();
 
-            // Fetch duels for the user
             var duels = duelService.GetDuelsForUser(id);
 
-            // Separate active and completed duels
             var activeDuels = duels
-                .Where(d => d.Status == "Pending") // Assuming "Pending" indicates active duels
+                .Where(d => d.Status == "Pending")
                 .Select(d => new DuelViewModel
                 {
                     Id = d.Id,
@@ -64,7 +61,7 @@ namespace _8ball_arena.Controllers
                 }).ToList();
 
             var completedDuels = duels
-                .Where(d => d.Status == "Completed") // Assuming "Completed" indicates finished duels
+                .Where(d => d.Status == "Completed")
                 .Select(d => new DuelViewModel
                 {
                     Id = d.Id,
@@ -78,7 +75,6 @@ namespace _8ball_arena.Controllers
                     }).ToList()
                 }).ToList();
 
-            // Construct UserViewModel
             var viewModel = new UserViewModel
             {
                 Id = user.Id,
@@ -110,7 +106,6 @@ namespace _8ball_arena.Controllers
         {
             try
             {
-                // Check if a file has been uploaded
                 if (profilePicture != null)
                 {
                     // Check if the file is an image
@@ -123,17 +118,17 @@ namespace _8ball_arena.Controllers
 
                     // Save the profile picture to wwwroot/Images and get the file path
                     var fileName = Path.GetFileName(profilePicture.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "/wwwroot/Images", fileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
                         profilePicture.CopyTo(fileStream);
                     }
 
-                    // Save the relative file path to the database
-                    user.ProfilePicture = Path.Combine("Images", fileName);
-                }
+                    user.ProfilePicture = "/" + Path.Combine("Images", fileName);
 
-                if (!userService.CreateUser(user))
+				}
+
+				if (!userService.CreateUser(user))
                 {
                     ViewBag.PasswordError = "Password must include a capital letter and a number";
                     return View(user);
