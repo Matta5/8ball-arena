@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BLL.DTOs;
 using _8ball_arena.Models;
-using System.Linq;
 
 namespace _8ball_arena.Controllers
 {

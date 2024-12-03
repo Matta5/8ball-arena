@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <None Include="wwwroot\css\User\Create.css" />
+    <None Include="wwwroot\css\_Layout.css" />
   </ItemGroup>
 
 </Project>

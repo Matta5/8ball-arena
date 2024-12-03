@@ -1,0 +1,46 @@
+﻿.profile-picture {
+    max-width: 100px;
+    max-height: 100px;
+    padding-right: 10px;
+}
+
+.container-flex {
+    display: flex;
+    justify-content: space-between;
+}
+
+.rating-container, .stats-container {
+    background-color: #202020;
+    padding: 10px;
+    width: 48%;
+    border-radius: 20px;
+}
+
+.user-info-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.duels-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .duels-table th, .duels-table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.winner {
+    color: green;
+}
+
+.loser {
+    color: red;
+}
