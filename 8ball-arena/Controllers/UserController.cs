@@ -1,4 +1,5 @@
 ﻿using BLL;
+using BLL.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using BLL.DTOs;
 using _8ball_arena.Models;
@@ -42,7 +43,7 @@ namespace _8ball_arena.Controllers
             if (user == null)
                 return NotFound();
 
-            var duels = duelService.GetDuelsForUser(id);
+            var duels = duelService.GetDuelsByUserId(id);
 
             var activeDuels = duels
                 .Where(d => d.Status == "Pending")
@@ -101,7 +102,7 @@ namespace _8ball_arena.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(UserDTO user, IFormFile profilePicture)
+        public ActionResult Create(CreateUserDTO user, IFormFile profilePicture)
         {
             try
             {
@@ -142,26 +143,88 @@ namespace _8ball_arena.Controllers
         }
 
 
-        // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int Id)
         {
-            return View();
+            try
+            {
+                UserDTO u = userService.GetUserById(Id);
+
+                UserViewModel songViewModel = new UserViewModel
+                {
+                    Id = u.Id,
+                    Username = u.Username,
+                    Email = u.Email,
+                    ProfilePicture = u.ProfilePicture,
+                };
+
+                return View(songViewModel);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (UserServiceException ex)
+            {
+                ViewData["Error"] = ex.Message;
+                return View();
+            }
         }
 
         // POST: UserController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, UserViewModel userViewModel, IFormFile? profilePicture)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return View(userViewModel);
+            }
+
             try
             {
-                return RedirectToAction(nameof(Index));
+                var editUserDTO = new EditUserDTO
+                {
+                    Username = userViewModel.Username,
+                    Email = userViewModel.Email,
+                    ProfilePicture = userViewModel.ProfilePicture
+                };
+
+                if (profilePicture != null && profilePicture.Length > 0)
+                {
+                    var extension = Path.GetExtension(profilePicture.FileName).ToLower();
+                    if (extension != ".jpg" && extension != ".png")
+                    {
+                        ViewBag.FileError = "File must be a .jpg or .png image";
+                        return View(userViewModel);
+                    }
+
+                    var fileName = Path.GetFileName(profilePicture.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        profilePicture.CopyTo(fileStream);
+                    }
+
+                    editUserDTO.ProfilePicture = "/" + Path.Combine("Images", fileName);
+                }
+
+                userService.EditUser(id, editUserDTO);
+                return RedirectToAction(nameof(Details), new { id = id });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                ModelState.AddModelError(string.Empty, ex.Message);  // Show exact error
+                return View(userViewModel);
             }
+
         }
+
+
+
+
+
+
 
         // GET: UserController/Delete/5
         public ActionResult Delete(int id)

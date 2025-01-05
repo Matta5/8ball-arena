@@ -19,14 +19,9 @@ namespace BLL
             return duelRepository.GetDuelById(duelId);
         }
 
-        public List<DuelDTO> GetDuelsByUserId(int id)
+        public List<DuelDTO> GetDuelsByUserId(int userId)
         {
-            return duelRepository.GetDuelsByUserId(id);
-        }
-
-        public List<DuelDTO> GetDuelsForUser(int userId)
-        {
-            return duelRepository.GetDuelsForUser(userId);
+            return duelRepository.GetDuelsByUserId(userId);
         }
 
     }

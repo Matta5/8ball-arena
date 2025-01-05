@@ -34,7 +34,7 @@ namespace BLL
             return userRepository.ValidateUserCredentials(username, password, out id);
         }
 
-        public bool CreateUser(UserDTO user)
+        public bool CreateUser(CreateUserDTO user)
         {
             string passwordValidationResult = IsValidPassword(user.Password);
             if (passwordValidationResult != null)
@@ -44,6 +44,11 @@ namespace BLL
             user.DateJoined = DateTime.Now;
             userRepository.CreateUser(user);
             return true;
+        }
+
+        public void EditUser(int id, EditUserDTO user)
+        {
+            userRepository.EditUser(id, user);
         }
 
         public string IsValidPassword(string password)

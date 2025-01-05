@@ -21,7 +21,6 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 // Add session services
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -43,7 +42,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-app.UseSession(); // Add session middleware
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

@@ -1,4 +1,5 @@
 ﻿using BLL.DTOs;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace _8ball_arena.Models
 {
@@ -8,7 +9,7 @@ namespace _8ball_arena.Models
         public int Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        public string ProfilePicture { get; set; }
+        public string? ProfilePicture { get; set; }
         public int Wins { get; set; }
         public int Rating { get; set; }
         public int GamesPlayed { get; set; }
@@ -17,6 +18,9 @@ namespace _8ball_arena.Models
         public List<DuelDTO> Duels { get; set; } = new List<DuelDTO>();
         public List<DuelDTO> CompletedDuels  => Duels.Where(d => d.Status == "Completed").ToList();
         public List<DuelDTO> ActiveDuels => Duels.Where(d => d.Status == "Pending").ToList();
+
+        
+        
     }
 
 }

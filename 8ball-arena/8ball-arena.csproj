@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\css\User\Create.css" />
+    <None Include="wwwroot\css\Shared\DragDrop.css" />
     <None Include="wwwroot\css\_Layout.css" />
   </ItemGroup>
 

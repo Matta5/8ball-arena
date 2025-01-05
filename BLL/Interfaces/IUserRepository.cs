@@ -9,6 +9,7 @@ namespace BLL.Interfaces
         public UserDTO GetUserByNameAndPassword(string username, string password);
         public bool ValidateUserCredentials(string username, string password, out int id);
 
-        public void CreateUser(UserDTO user);
+        public void CreateUser(CreateUserDTO user);
+        public void EditUser(int id, EditUserDTO user);
     }
 }

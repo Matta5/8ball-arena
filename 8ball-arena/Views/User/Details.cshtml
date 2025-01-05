@@ -5,116 +5,113 @@
 
 	var sessionId = ViewBag.SessionId as int?;
 }
-<link rel="stylesheet" href="~/css/User/Details.css" />
+
+<link rel="stylesheet" href="~/css/User/Details.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
 
 
-<h1><img src="@Model.ProfilePicture" alt="Profile Picture" class="profile-picture" />@Model.Username's Account</h1>
+<body>
+	<h1><img src="@Model.ProfilePicture" alt="Profile Picture" class="profile-picture" />@Model.Username's Account</h1>
 
 
 
-<div class="container-flex">
-	<div class="rating-container">
-		<h2>Rating</h2>
-		<p><strong>Rating:</strong> @Model.Rating</p>
+	<div class="container-flex">
+		<div class="rating-container">
+			<h2>Rating</h2>
+			<p class="align-content-center">@Model.Rating</p>
+		</div>
+		<div class="stats-container">
+			<h2>Stats</h2>
+			<p><strong>Wins:</strong> @Model.Wins</p>
+			<p><strong>Games Played:</strong> @Model.GamesPlayed</p>
+			<p><strong>Date Joined:</strong> @Model.DateJoined.ToString("yyyy-MM-dd")</p>
+		</div>
 	</div>
-	<div class="stats-container">
-		<h2>Stats</h2>
-		<p><strong>Wins:</strong> @Model.Wins</p>
-		<p><strong>Games Played:</strong> @Model.GamesPlayed</p>
-		<p><strong>Date Joined:</strong> @Model.DateJoined.ToString("yyyy-MM-dd")</p>
+
+	<div class="user-info-container">
+		<h2>User Info</h2>
+		<p><strong>Username:</strong> @Model.Username</p>
+		<p><strong>Email:</strong> @Model.Email</p>
 	</div>
-</div>
 
-<div class="user-info-container">
-	<h2>User Info</h2>
-	<p><strong>Username:</strong> @Model.Username</p>
-	<p><strong>Email:</strong> @Model.Email</p>
-</div>
+	<hr />
 
-<hr />
-
-<h2>Active Duels</h2>
-@if (Model.ActiveDuels.Any())
-{
-	<table class="duels-table">
-		<thead>
-			<tr>
-				<th>Created On</th>
-				<th>Participants</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var duel in Model.ActiveDuels)
-			{
-				<tr onclick="location.href='@Url.Action("Details", "Duel", new { id = duel.Id })'" class="clickable-row">
-					<td>@duel.DateCreated.ToString("dd MMM yyyy")</td>
-					<td>
-						<ul>
-							@foreach (var participant in duel.Participants)
-							{
-								<li>@participant.Username</li>
-							}
-						</ul>
-					</td>
+	<h2>Active Duels</h2>
+	@if (Model.ActiveDuels.Any())
+	{
+		<table class="duels-table">
+			<thead>
+				<tr>
+					<th>Created On</th>
+					<th>Participants</th>
 				</tr>
-			}
-		</tbody>
-	</table>
-}
-else
-{
-	<p>No active duels.</p>
-}
+			</thead>
+			<tbody>
+				@foreach (var duel in Model.ActiveDuels)
+				{
+					<tr onclick="location.href='@Url.Action("Details", "Duel", new { id = duel.Id })'" class="clickable-row">
+						<td>@duel.DateCreated.ToString("dd MMM yyyy")</td>
+						<td>
+							<ul>
+								@foreach (var participant in duel.Participants)
+								{
+									<li>@participant.Username</li>
+								}
+							</ul>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+	else
+	{
+		<p>No active duels.</p>
+	}
 
-<h2>Completed Duels</h2>
-@if (Model.CompletedDuels.Any())
-{
-	<table class="duels-table">
-		<tbody>
-			@foreach (var duel in Model.CompletedDuels)
-			{
-				<tr onclick="location.href='@Url.Action("Details", "Duel", new { id = duel.Id })'" class="clickable-row">
-					<td>@duel.DateCreated.ToString("dd MMM yyyy")</td>
-					<td>
-						<ul>
+	<h2>Completed Duels</h2>
+	@if (Model.CompletedDuels.Any())
+	{
+		<table class="duels-table">
+			<tbody>
+				@foreach (var duel in Model.CompletedDuels)
+				{
+					<tr onclick="location.href='@Url.Action("Details", "Duel", new { id = duel.Id })'" class="clickable-row">
+						<td>@duel.DateCreated.ToString("dd MMM yyyy")</td>
+						<td>
+							<ul>
+								@foreach (var participant in duel.Participants)
+								{
+									<li>
+										@participant.Username
+
+									</li>
+
+								}
+							</ul>
+						</td>
+						<td>
 							@foreach (var participant in duel.Participants)
 							{
-								<li>
-									@participant.Username
-
-								</li>
-
-							}
-						</ul>
-					</td>
-					<td>
-						@foreach (var participant in duel.Participants)
-						{
-							if (participant.UserId == Model.Id)
-							{
-								if (participant.IsWinner.HasValue)
+								if (participant.UserId == Model.Id && participant.IsWinner.HasValue)
 								{
-									if (participant.IsWinner.Value)
-									{
-										<p class="winner">+</p>
-									}
-									else
-									{
-										<p class="loser">-</p>
-									}
+									<p class="@((participant.IsWinner.Value) ? "winner" : "loser")">
+										@Html.Raw(participant.IsWinner.Value
+																			? "<i class='fa-solid fa-square-plus fa-rotate-90' style='color: #81b64a;'></i>"
+																			: "<i class='fa-solid fa-square-minus' style='color: #fa412d;'></i>")
+									</p>
 								}
 							}
 
-						}
-
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-else
-{
-	<p>No completed duels.</p>
-}
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+	else
+	{
+		<p>No completed duels.</p>
+	}
+</body>

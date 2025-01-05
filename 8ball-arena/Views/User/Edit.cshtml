@@ -1,11 +1,11 @@
-﻿@model BLL.DTOs.CreateUserDTO
+﻿@model _8ball_arena.Models.UserViewModel
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit Profile";
 }
 <link href="~/css/Shared/DragDrop.css" rel="stylesheet" asp-append-version="true" />
 
-<h2>Create New User</h2>
-@using (Html.BeginForm("Create", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+<h2>Edit Profile</h2>
+@using (Html.BeginForm("Edit", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -23,26 +23,12 @@
     </div>
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Password)
-        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control bg-dark text-light" } })
-        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
-        @if (ViewBag.PasswordError != null)
-        {
-            <div class="text-danger">@ViewBag.PasswordError</div>
-        }
-    </div>
-
-    <div class="form-group">
         @Html.Label("Profile Picture")
         <div id="dropZone" class="drop-zone">
             <p id="dropText">Drag & Drop your image here or click to upload</p>
             <input type="file" name="profilePicture" id="profilePicture" class="file-input" onchange="handleFileUpload(event)" />
             <img id="preview" class="preview-img" alt="Preview" style="display: none;" />
         </div>
-        @if (ViewBag.FileError != null)
-        {
-            <div class="text-danger">@ViewBag.FileError</div>
-        }
     </div>
 
     <script>
@@ -51,7 +37,6 @@
         const previewImg = document.getElementById('preview');
         const dropText = document.getElementById('dropText');
 
-        // Highlight drop zone on drag
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('drag-over');
@@ -61,7 +46,6 @@
             dropZone.classList.remove('drag-over');
         });
 
-        // Handle drop
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
@@ -73,7 +57,6 @@
             }
         });
 
-        // Handle file selection
         const handleFileUpload = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -81,8 +64,7 @@
                 reader.onload = () => {
                     previewImg.src = reader.result;
                     previewImg.style.display = "block";
-                    dropText.style.display = "none"; // Hide the drag-and-drop text
-                    dropZone.style.aspectRatio = ""; // Reset aspect ratio
+                    dropText.style.display = "none";
                 };
                 reader.onloadend = () => {
                     const img = new Image();
@@ -97,5 +79,6 @@
         };
     </script>
 
-    <button type="submit" class="btn btn-primary mt-3">Create</button>
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary mt-3">Cancel</a>
 }

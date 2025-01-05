@@ -6,7 +6,6 @@
     <title>@ViewData["Title"] - _8ball_arena</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/_8ball_arena.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/_Layout.css" asp-append-version="true" />
 </head>
 <body>
@@ -14,7 +13,7 @@
         <aside class="sidebar p-3">
             <a class="navbar-brand d-block mb-4" asp-area="" asp-controller="Home" asp-action="Index">8ball_arena</a>
             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a class="nav-link text-light" asp-area="" asp-controller="Duel" asp-action="Index">Duels</a>
             <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Index">Users</a>
             @{
                 if (string.IsNullOrEmpty(ViewBag.Id))
@@ -30,7 +29,6 @@
             }
         </aside>
 
-        <!-- Main content area -->
         <div class="content flex-grow-1 p-4">
             <header>
                 <h1>@ViewData["Title"]</h1>

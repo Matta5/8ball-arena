@@ -51,7 +51,7 @@ namespace DAL
             return duel;
         }
 
-        public List<DuelDTO> GetDuelsForUser(int userId)
+        public List<DuelDTO> GetDuelsByUserId(int userId)
         {
             var duels = new List<DuelDTO>();
 
@@ -105,7 +105,7 @@ namespace DAL
                             Username = reader.GetString(reader.GetOrdinal("ParticipantUsername")),
                             IsWinner = reader.IsDBNull(reader.GetOrdinal("ParticipantIsWinner"))
                             ? (bool?)null
-                            : reader.GetBoolean(reader.GetOrdinal("ParticipantIsWinner")) // Otherwise, read as a boolean
+                            : reader.GetBoolean(reader.GetOrdinal("ParticipantIsWinner"))
                         };
 
                         duelMap[duelId].Participants.Add(participant);
@@ -117,46 +117,6 @@ namespace DAL
 
             return duels;
         }
-
-
-        public List<DuelDTO> GetDuelsByUserId(int id)
-        {
-            List<DuelDTO> duels = new List<DuelDTO>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                string query = @"
-            SELECT d.Id AS DuelId, d.DateCreated, d.Status, 
-                   dp.UserId AS ParticipantUserId
-            FROM DuelParticipants dp
-            JOIN Duels d ON dp.DuelId = d.Id
-            WHERE dp.UserId = @UserId
-            ORDER BY d.DateCreated DESC;";
-
-                SqlCommand cmd = new SqlCommand(query, connection);
-                cmd.Parameters.AddWithValue("@UserId", id);
-
-                connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        DuelDTO duel = new DuelDTO
-                        {
-                            Id = reader.GetInt32(0),
-                            DateCreated = reader.GetDateTime(1),
-                            Status = reader.GetString(2),
-                            ParticipantUserId = reader.GetInt32(3)
-                        };
-                        duels.Add(duel);
-                    }
-                }
-            }
-
-            return duels;
-        }
-
-
 
         public List<DuelParticipantDTO> GetParticipantsByDuelId(int duelId)
         {

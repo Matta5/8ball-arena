@@ -1,5 +1,6 @@
 ﻿using BLL.Interfaces;
 using BLL.DTOs;
+using BLL.Exceptions;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 
@@ -154,21 +155,51 @@ namespace DAL
             }
         }
 
-        public void CreateUser(UserDTO user)
+        public void CreateUser(CreateUserDTO createEditUserDTO)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
                 s.Open();
                 string insertQuery = "INSERT INTO [Users] (username, email, password, profile_picture, date_joined) VALUES (@Username, @Email, @Password, @ProfilePicture, @DateJoined)";
                 SqlCommand cmd = new SqlCommand(insertQuery, s);
-                cmd.Parameters.AddWithValue("@Username", user.Username);
-                cmd.Parameters.AddWithValue("@Email", user.Email);
-                cmd.Parameters.AddWithValue("@Password", user.Password);
-                cmd.Parameters.AddWithValue("@ProfilePicture", user.ProfilePicture ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Username", createEditUserDTO.Username);
+                cmd.Parameters.AddWithValue("@Email", createEditUserDTO.Email);
+                cmd.Parameters.AddWithValue("@Password", createEditUserDTO.Password);
+                cmd.Parameters.AddWithValue("@ProfilePicture", createEditUserDTO.ProfilePicture ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@DateJoined", DateTime.Now);
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public void EditUser(int id, EditUserDTO createEditUserDTO)
+        {
+            using (SqlConnection s = new SqlConnection(connectionString))
+            {
+                s.Open();
+                string updateQuery = "UPDATE [Users] SET username = @Username, email = @Email, profile_picture = @ProfilePicture WHERE id = @id";
+
+                SqlCommand cmd = new SqlCommand(updateQuery, s);
+                cmd.Parameters.AddWithValue("@Username", createEditUserDTO.Username);
+                cmd.Parameters.AddWithValue("@Email", createEditUserDTO.Email);
+                cmd.Parameters.AddWithValue("@ProfilePicture", createEditUserDTO.ProfilePicture ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                try
+                {
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected == 0)
+                    {
+                        throw new NotFoundException("User not found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new UserRepositoryException("An error occurred while editing user.", ex);
+                }
+            }
+        }
+
 
     }
 }
