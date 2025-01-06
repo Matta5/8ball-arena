@@ -51,6 +51,11 @@ namespace BLL
             userRepository.EditUser(id, user);
         }
 
+        public void DeleteUser(int id)
+        {
+            userRepository.DeleteUser(id);
+        }
+
         public string IsValidPassword(string password)
         {
             if (string.IsNullOrEmpty(password))

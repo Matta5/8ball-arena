@@ -229,22 +229,60 @@ namespace _8ball_arena.Controllers
         // GET: UserController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            try
+            {
+                UserDTO user = userService.GetUserById(id);
+
+                DeleteUserViewModel deleteUserViewModel = new DeleteUserViewModel
+                {
+                    Id = user.Id,
+                    Username = user.Username
+                };
+
+                return View(deleteUserViewModel);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (UserServiceException ex)
+            {
+                ViewData["Error"] = ex.Message;
+                return View();
+            }
         }
 
         // POST: UserController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(DeleteUserViewModel model)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                UserDTO user = userService.GetUserById(model.Id);
+
+                if (user.Password == model.Password)
+                {
+                    userService.DeleteUser(model.Id);
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.PasswordError = "Incorrect password.";
+                    model.Username = user.Username;
+                    return View(model);
+                }
             }
-            catch
+            catch (NotFoundException ex)
             {
-                return View();
+                return NotFound();
+            }
+            catch (UserServiceException ex)
+            {
+                ViewData["Error"] = ex.Message;
+                return View(model);
             }
         }
     }
 }
+

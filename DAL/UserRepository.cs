@@ -200,6 +200,23 @@ namespace DAL
             }
         }
 
+        public void DeleteUser(int id)
+        {
+            using (SqlConnection s = new SqlConnection(connectionString))
+            {
+                s.Open();
+                string deleteQuery = "DELETE FROM [Users] WHERE id = @id";
+                SqlCommand cmd = new SqlCommand(deleteQuery, s);
+                cmd.Parameters.AddWithValue("@id", id);
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    throw new NotFoundException("User not found.");
+                }
+            }
+        }
+
 
     }
 }
