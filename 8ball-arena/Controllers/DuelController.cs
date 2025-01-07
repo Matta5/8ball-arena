@@ -8,10 +8,12 @@ namespace _8ball_arena.Controllers
     public class DuelController : BaseController
     {
         private readonly DuelService duelService;
+        private readonly UserService userService;
 
-        public DuelController(DuelService duelService)
+        public DuelController(DuelService duelService, UserService userService)
         {
             this.duelService = duelService;
+            this.userService = userService;
         }
 
 
@@ -23,14 +25,11 @@ namespace _8ball_arena.Controllers
 
             if (duelDTO == null)
             {
-                // Handle case where the duel is not found
                 return NotFound();
             }
 
-            // Ensure Participants is not null
             duelDTO.Participants = duelDTO.Participants ?? new List<DuelParticipantDTO>();
 
-            // Map DuelDTO to DuelViewModel
             DuelViewModel duelViewModel = new DuelViewModel
             {
                 Id = duelDTO.Id,
@@ -55,5 +54,42 @@ namespace _8ball_arena.Controllers
         {
             return View();
         }
-    }
+
+        // POST: DuelController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(CreateDuelViewModel duelViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var sessionId = HttpContext.Session.GetInt32("Id");
+                UserDTO userDTO = userService.GetUserByUsername(duelViewModel.Username);
+                if(userDTO == null)
+                {
+					ModelState.AddModelError("Username", "User not found");
+					return View(duelViewModel);
+				}
+                int participantUser = userDTO.Id;
+
+                if (participantUser == null)
+                {
+                    ModelState.AddModelError("Username", "User not found");
+                    return View(duelViewModel);
+                }
+
+                int duelId = duelService.CreateDuel(sessionId.Value, participantUser);
+                return RedirectToAction("Details", "Duel", new { id = duelId });
+            }
+
+            return View(duelViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AssignWinner(int id, int winnerId)
+        {
+			duelService.AssignWinner(id, winnerId);
+			return RedirectToAction("Details", "Duel", new { id });
+		}
+	}
 }

@@ -39,6 +39,8 @@ namespace _8ball_arena.Controllers
 
         public IActionResult Details(int id)
         {
+            ViewBag.SessionId = HttpContext.Session.GetInt32("Id");
+
             var user = userService.GetUserById(id);
             if (user == null)
                 return NotFound();
@@ -214,7 +216,7 @@ namespace _8ball_arena.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);  // Show exact error
+                ModelState.AddModelError(string.Empty, ex.Message);
                 return View(userViewModel);
             }
 

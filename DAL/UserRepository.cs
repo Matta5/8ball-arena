@@ -96,20 +96,15 @@ namespace DAL
             return user;
         }
 
-
-
-
-
-        public UserDTO GetUserByNameAndPassword(string username, string password)
+        public UserDTO GetUserByUsername(string username)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
                 string query = @"SELECT id, username, email, password, wins, rating, games_played, profile_picture, date_joined 
                          FROM [Users] 
-                         WHERE username = @username AND password = @password";
+                         WHERE username = @username";
                 SqlCommand cmd = new SqlCommand(query, s);
                 cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@password", password);
                 s.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -200,23 +195,47 @@ namespace DAL
             }
         }
 
-        public void DeleteUser(int id)
-        {
-            using (SqlConnection s = new SqlConnection(connectionString))
-            {
-                s.Open();
-                string deleteQuery = "DELETE FROM [Users] WHERE id = @id";
-                SqlCommand cmd = new SqlCommand(deleteQuery, s);
-                cmd.Parameters.AddWithValue("@id", id);
-                int rowsAffected = cmd.ExecuteNonQuery();
+		public void DeleteUser(int id)
+		{
+			using (SqlConnection s = new SqlConnection(connectionString))
+			{
+				s.Open();
+				using (SqlTransaction transaction = s.BeginTransaction())
+				{
+					try
+					{
+						// Update DuelParticipants to replace the user with DeletedUser
+						string updateDuelParticipantsQuery = @"
+                    UPDATE [DuelParticipants]
+                    SET UserId = 1011
+                    WHERE UserId = @UserId";
+						SqlCommand updateCmd = new SqlCommand(updateDuelParticipantsQuery, s, transaction);
+						updateCmd.Parameters.AddWithValue("@UserId", id);
+						updateCmd.ExecuteNonQuery();
 
-                if (rowsAffected == 0)
-                {
-                    throw new NotFoundException("User not found.");
-                }
-            }
-        }
+						// Delete the user
+						string deleteQuery = "DELETE FROM [Users] WHERE id = @id";
+						SqlCommand deleteCmd = new SqlCommand(deleteQuery, s, transaction);
+						deleteCmd.Parameters.AddWithValue("@id", id);
+						int rowsAffected = deleteCmd.ExecuteNonQuery();
+
+						if (rowsAffected == 0)
+						{
+							throw new NotFoundException("User not found.");
+						}
+
+						transaction.Commit();
+					}
+					catch
+					{
+						transaction.Rollback();
+						throw;
+					}
+				}
+			}
+		}
 
 
-    }
+
+	}
 }

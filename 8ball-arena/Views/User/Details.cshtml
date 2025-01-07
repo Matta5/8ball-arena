@@ -1,4 +1,4 @@
-﻿@model _8ball_arena.Models.UserViewModel
+﻿@model UserViewModel
 
 @{
 	ViewData["Title"] = "";
@@ -33,6 +33,11 @@
 		<h2>User Info</h2>
 		<p><strong>Username:</strong> @Model.Username</p>
 		<p><strong>Email:</strong> @Model.Email</p>
+
+		@if (Model.Id == sessionId)
+		{
+			<p><a href="@Url.Action("Edit", "User",  new { id = sessionId})">Edit Profile</a></p>
+		}
 	</div>
 
 	<hr />
@@ -113,5 +118,10 @@
 	else
 	{
 		<p>No completed duels.</p>
+	}
+
+	@if (Model.Id == sessionId)
+	{
+		<p><a href="@Url.Action("Delete", "User", new { id = sessionId})">Delete account</a></p>
 	}
 </body>

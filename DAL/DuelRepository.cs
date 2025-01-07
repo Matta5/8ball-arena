@@ -2,6 +2,7 @@
 using BLL.DTOs;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
+using System.Linq.Expressions;
 
 namespace DAL
 {
@@ -138,12 +139,28 @@ namespace DAL
                 {
                     while (reader.Read())
                     {
-                        participants.Add(new DuelParticipantDTO
+                        if (reader.IsDBNull(0))
                         {
-                            UserId = reader.GetInt32(0),
-                            Username = reader.GetString(1),
-                            IsWinner = reader.GetBoolean(2)
-                        });
+                            participants.Add(new DuelParticipantDTO
+                            {
+                                UserId = 1011,
+                                Username = "DeletedUser",
+                                IsWinner = null
+                            });
+                        }
+                        else
+                        {
+                            participants.Add(new DuelParticipantDTO
+                            {
+                                UserId = reader.GetInt32(0),
+                                Username = reader.GetString(1),
+                                IsWinner = reader.GetBoolean(2)
+                            });
+                        }
+                        
+                        
+                        
+                        
                     }
                 }
             }
@@ -152,7 +169,7 @@ namespace DAL
         }
 
 
-        public void CreateDuel(int userId1, int userId2)
+        public int CreateDuel(int userId1, int userId2)
         {
             using (SqlConnection s = new SqlConnection(connectionString))
             {
@@ -190,6 +207,8 @@ namespace DAL
                         participantCmd.ExecuteNonQuery();
 
                         transaction.Commit();
+
+                        return duelId;
                     }
                     catch
                     {
@@ -222,7 +241,6 @@ namespace DAL
                         participantsCmd.Parameters.AddWithValue("@WinnerUserId", winnerUserId);
                         participantsCmd.Parameters.AddWithValue("@DuelId", duelId);
                         participantsCmd.ExecuteNonQuery();
-
                         string updateDuelQuery = @"
                     UPDATE Duels
                     SET Status = 'Completed'

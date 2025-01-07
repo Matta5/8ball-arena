@@ -1,7 +1,6 @@
 using BLL;
 using BLL.Interfaces;
 using DAL;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -23,3 +23,22 @@
         </li>
     }
 </ul>
+
+<h2>Assign winner</h2>
+@if(Model.Status == "Pending")
+{
+	<form asp-action="AssignWinner" asp-controller="Duel">
+		<input type="hidden" name="id" value="@Model.Id" />
+		<select name="winnerId">
+			@foreach (var participant in Model.Participants)
+			{
+				<option value="@participant.UserId">@participant.Username</option>
+			}
+		</select>
+		<button type="submit">Assign winner</button>
+	</form>
+}
+else
+{
+	<p>Duel is not active.</p>
+}

@@ -24,9 +24,9 @@ namespace BLL
             return userRepository.GetUserById(id);
         }
 
-        public UserDTO GetUserByNameAndPassword(string username, string password)
+        public UserDTO GetUserByUsername(string username)
         {
-            return userRepository.GetUserByNameAndPassword(username, password);
+            return userRepository.GetUserByUsername(username);
         }
 
         public bool ValidateUserCredentials(string username, string password, out int id)

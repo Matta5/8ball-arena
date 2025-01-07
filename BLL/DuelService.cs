@@ -22,14 +22,19 @@ namespace BLL
             return duelRepository.GetDuelsByUserId(userId);
         }
 
-        public void CreateDuel(int userId1, int userId2)
+        public int CreateDuel(int userId1, int userId2)
         {
             if (userId1 == userId2)
             {
                 throw new InvalidOperationException("You can't duel yourself!");
             }
 
-            duelRepository.CreateDuel(userId1, userId2);
+            return duelRepository.CreateDuel(userId1, userId2);
         }
+
+        public void AssignWinner(int duelId, int winnerId)
+        {
+			duelRepository.AssignWinner(duelId, winnerId);
+		}
     }
 }
