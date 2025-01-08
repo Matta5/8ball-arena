@@ -3,6 +3,7 @@ using BLL.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using BLL.DTOs;
 using _8ball_arena.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace _8ball_arena.Controllers
 {
@@ -114,49 +115,52 @@ namespace _8ball_arena.Controllers
 			return View();
 		}
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public ActionResult Create(CreateUserDTO user, IFormFile profilePicture)
-		{
-			try
-			{
-				if (profilePicture != null)
-				{
-					var extension = Path.GetExtension(profilePicture.FileName).ToLower();
-					if (extension != ".jpg" && extension != ".png")
-					{
-						ViewBag.FileError = "File must be a .jpg or .png image";
-						return View(user);
-					}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(CreateUserDTO user, IFormFile profilePicture)
+        {
+            try
+            {
+                // Handle profile picture upload
+                if (profilePicture != null)
+                {
+                    var extension = Path.GetExtension(profilePicture.FileName).ToLower();
+                    if (extension != ".jpg" && extension != ".png")
+                    {
+                        ViewBag.FileError = "File must be a .jpg or .png image";
+                        return View(user);
+                    }
 
-					var fileName = Path.GetFileName(profilePicture.FileName);
-					var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
-					using (var fileStream = new FileStream(filePath, FileMode.Create))
-					{
-						profilePicture.CopyTo(fileStream);
-					}
+                    var fileName = Path.GetFileName(profilePicture.FileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        profilePicture.CopyTo(fileStream);
+                    }
 
-					user.ProfilePicture = "/" + Path.Combine("Images", fileName);
-				}
+                    user.ProfilePicture = "/" + Path.Combine("Images", fileName);
+                }
 
-				string errorMessage;
-				if (!userService.CreateUser(user, out errorMessage))
-				{
-					ViewBag.PasswordError = errorMessage;
-					return View(user);
-				}
+                userService.CreateUser(user);
+                return RedirectToAction(nameof(Index));
+            }
 
-				return RedirectToAction(nameof(Index));
-			}
-			catch (Exception ex)
-			{
-				ViewData["Error"] = "An error occurred while creating the user.";
-				return View("Error");
-			}
-		}
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (UserServiceException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return View(user);
+            }
+        }
 
 
-		public IActionResult Edit(int Id)
+
+
+
+        public IActionResult Edit(int Id)
 		{
 			try
 			{
@@ -171,6 +175,11 @@ namespace _8ball_arena.Controllers
 				};
 
 				return View(songViewModel);
+			}
+			catch (DuplicateException ex)
+			{
+				ViewBag.Error = ex.Message;
+				return View();
 			}
 			catch (NotFoundException ex)
 			{
@@ -223,12 +232,27 @@ namespace _8ball_arena.Controllers
 				userService.EditUser(id, editUserDTO);
 				return RedirectToAction(nameof(Details), new { id = id });
 			}
-			catch (Exception ex)
+			catch (DuplicateException ex)
 			{
-				ModelState.AddModelError(string.Empty, ex.Message);
+				ViewBag.DuplicateError = ex.Message;
 				return View(userViewModel);
 			}
+			catch (NotFoundException ex)
+			{
+				return NotFound();
+			}
+			catch (UserServiceException ex)
+			{
+				ViewData["Error"] = ex.Message;
+				return View("Error");
+			}
+			catch (Exception ex)
+			{
+				ViewData["Error"] = "An error occurred while editing the user.";
+				return View("Error");
+			}
 		}
+
 
 		// GET: UserController/Delete/5
 		public ActionResult Delete(int id)

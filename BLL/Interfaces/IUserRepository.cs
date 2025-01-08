@@ -11,5 +11,6 @@ namespace BLL.Interfaces
         public void CreateUser(CreateUserDTO user);
         public void EditUser(int id, EditUserDTO user);
         public void DeleteUser(int id);
+        public bool CheckIfUsernameExists(string username);
     }
 }

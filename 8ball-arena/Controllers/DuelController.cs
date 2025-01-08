@@ -78,14 +78,19 @@ namespace _8ball_arena.Controllers
                     int duelId = duelService.CreateDuel(sessionId.Value, participantUser);
                     return RedirectToAction("Details", "Duel", new { id = duelId });
                 }
-                catch (NotFoundException ex)
+                catch (PasswordValidationException ex)
                 {
-                    ModelState.AddModelError("Username", "User not found. Please check the username and try again.");
+                    ModelState.AddModelError("Password", ex.Message);
                     return View(duelViewModel);
                 }
-                catch (Exception ex)
+                catch (ArgumentException ex)
                 {
-                    ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                    return View(duelViewModel);
+                }
+                catch (UserServiceException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(duelViewModel);
                 }
             }

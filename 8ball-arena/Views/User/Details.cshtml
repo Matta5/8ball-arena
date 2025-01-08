@@ -14,6 +14,17 @@
 <body>
 	<h1><img src="@Model.ProfilePicture" alt="Profile Picture" class="profile-picture" />@Model.Username's Account</h1>
 
+	@if (Model.Id != sessionId && sessionId != null)
+	{
+		using (Html.BeginForm("Create", "Duel", FormMethod.Post, new { @class = "inline-form" }))
+		{
+			@Html.AntiForgeryToken()
+			@Html.HiddenFor(m => m.Username)
+			<button type="submit" class="btn btn-primary">Challenge</button>
+		}
+	}
+
+
 
 
 	<div class="container-flex">

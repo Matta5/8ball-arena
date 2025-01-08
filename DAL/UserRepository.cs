@@ -74,7 +74,7 @@ namespace DAL
                     {
                         if (!reader.HasRows)
                         {
-                            throw new NotFoundException("User not found.");
+                            throw new UserRepositoryException("User not found.");
                         }
 
                         reader.Read();
@@ -82,17 +82,35 @@ namespace DAL
                     }
                 }
             }
-            catch (NotFoundException notFoundEx)
+            catch (UserRepositoryException ex)
             {
-                throw notFoundEx;
+                throw ex;
             }
             catch (SqlException sqlEx)
             {
                 throw new UserRepositoryException("Database error occurred while fetching user by username.", sqlEx);
             }
+        }
+
+        // get user count bij username please
+        public bool CheckIfUsernameExists(string username)
+        {
+            try
+            {
+                using (SqlConnection s = new SqlConnection(connectionString))
+                {
+                    string query = "SELECT COUNT(*) FROM [Users] WHERE username = @username";
+                    SqlCommand cmd = new SqlCommand(query, s);
+                    cmd.Parameters.AddWithValue("@username", username);
+
+                    s.Open();
+                    int count = (int)cmd.ExecuteScalar();
+                    return count > 0;
+                }
+            }
             catch (Exception ex)
             {
-                throw new UserRepositoryException("An error occurred while fetching the user by username.", ex);
+                throw new UserRepositoryException("An error occurred while checking if username exists.", ex);
             }
         }
 

@@ -6,6 +6,5 @@ namespace _8ball_arena.Models
     {
         [Required(ErrorMessage = "Username is required.")]
         public string Username { get; set; }
-        public int ParticipantUserId { get; set; }
     }
 }
