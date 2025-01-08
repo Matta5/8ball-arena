@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using _8ball_arena.Models;
 using BLL.DTOs;
+using BLL.Exceptions;
 
 namespace _8ball_arena.Controllers
 {
@@ -63,26 +64,40 @@ namespace _8ball_arena.Controllers
             if (ModelState.IsValid)
             {
                 var sessionId = HttpContext.Session.GetInt32("Id");
-                UserDTO userDTO = userService.GetUserByUsername(duelViewModel.Username);
-                if(userDTO == null)
+                if (sessionId == null)
                 {
-					ModelState.AddModelError("Username", "User not found");
-					return View(duelViewModel);
-				}
-                int participantUser = userDTO.Id;
-
-                if (participantUser == null)
-                {
-                    ModelState.AddModelError("Username", "User not found");
-                    return View(duelViewModel);
+                    ModelState.AddModelError(string.Empty, "Please log in before creating a duel.");
+                    return View(duelViewModel);  
                 }
 
-                int duelId = duelService.CreateDuel(sessionId.Value, participantUser);
-                return RedirectToAction("Details", "Duel", new { id = duelId });
+                try
+                {
+                    UserDTO userDTO = userService.GetUserByUsername(duelViewModel.Username);
+                    int participantUser = userDTO.Id;
+
+                    int duelId = duelService.CreateDuel(sessionId.Value, participantUser);
+                    return RedirectToAction("Details", "Duel", new { id = duelId });
+                }
+                catch (NotFoundException ex)
+                {
+                    ModelState.AddModelError("Username", "User not found. Please check the username and try again.");
+                    return View(duelViewModel);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again.");
+                    return View(duelViewModel);
+                }
             }
 
             return View(duelViewModel);
         }
+
+
+
+
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

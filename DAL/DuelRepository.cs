@@ -104,9 +104,7 @@ namespace DAL
                         {
                             UserId = reader.GetInt32(reader.GetOrdinal("ParticipantUserId")),
                             Username = reader.GetString(reader.GetOrdinal("ParticipantUsername")),
-                            IsWinner = reader.IsDBNull(reader.GetOrdinal("ParticipantIsWinner"))
-                            ? (bool?)null
-                            : reader.GetBoolean(reader.GetOrdinal("ParticipantIsWinner"))
+                            IsWinner = reader.GetBoolean(reader.GetOrdinal("ParticipantIsWinner"))
                         };
 
                         duelMap[duelId].Participants.Add(participant);
@@ -139,28 +137,12 @@ namespace DAL
                 {
                     while (reader.Read())
                     {
-                        if (reader.IsDBNull(0))
-                        {
-                            participants.Add(new DuelParticipantDTO
-                            {
-                                UserId = 1011,
-                                Username = "DeletedUser",
-                                IsWinner = null
-                            });
-                        }
-                        else
-                        {
                             participants.Add(new DuelParticipantDTO
                             {
                                 UserId = reader.GetInt32(0),
                                 Username = reader.GetString(1),
                                 IsWinner = reader.GetBoolean(2)
                             });
-                        }
-                        
-                        
-                        
-                        
                     }
                 }
             }

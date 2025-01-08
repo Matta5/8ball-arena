@@ -6,7 +6,6 @@
 
 <h1>Duel Details</h1>
 
-<p>Duel ID: @Model.Id</p>
 <p>Status: @Model.Status</p>
 <p>Created: @Model.DateCreated</p>
 
@@ -24,21 +23,20 @@
     }
 </ul>
 
-<h2>Assign winner</h2>
-@if(Model.Status == "Pending")
+
+@if (Model.Status == "Pending")
 {
-	<form asp-action="AssignWinner" asp-controller="Duel">
+	<form asp-action="AssignWinner" asp-controller="Duel" class="text-light p-3 rounded">
 		<input type="hidden" name="id" value="@Model.Id" />
-		<select name="winnerId">
-			@foreach (var participant in Model.Participants)
-			{
-				<option value="@participant.UserId">@participant.Username</option>
-			}
-		</select>
-		<button type="submit">Assign winner</button>
+		<div class="mb-3">
+			<label for="winnerId" class="form-label">Select Winner</label>
+			<select name="winnerId" id="winnerId" class="form-select bg-dark text-light">
+				@foreach (var participant in Model.Participants)
+				{
+					<option value="@participant.UserId">@participant.Username</option>
+				}
+			</select>
+		</div>
+		<button type="submit" class="btn btn-outline-light">Assign winner</button>
 	</form>
-}
-else
-{
-	<p>Duel is not active.</p>
 }

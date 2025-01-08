@@ -25,7 +25,7 @@
 			<h2>Stats</h2>
 			<p><strong>Wins:</strong> @Model.Wins</p>
 			<p><strong>Games Played:</strong> @Model.GamesPlayed</p>
-			<p><strong>Date Joined:</strong> @Model.DateJoined.ToString("yyyy-MM-dd")</p>
+			<p><strong>Date Joined:</strong> @Model.DateJoined.ToString("dd MMM yyyy")</p>
 		</div>
 	</div>
 
@@ -99,10 +99,10 @@
 						<td>
 							@foreach (var participant in duel.Participants)
 							{
-								if (participant.UserId == Model.Id && participant.IsWinner.HasValue)
+								if (participant.UserId == Model.Id)
 								{
-									<p class="@((participant.IsWinner.Value) ? "winner" : "loser")">
-										@Html.Raw(participant.IsWinner.Value
+									<p class="@((participant.IsWinner) ? "winner" : "loser")">
+										@Html.Raw(participant.IsWinner
 																			? "<i class='fa-solid fa-square-plus fa-rotate-90' style='color: #81b64a;'></i>"
 																			: "<i class='fa-solid fa-square-minus' style='color: #fa412d;'></i>")
 									</p>
