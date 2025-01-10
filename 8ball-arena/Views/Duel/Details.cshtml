@@ -1,8 +1,19 @@
 ﻿@model _8ball_arena.Models.DuelViewModel
 
-@{
-    ViewData["Title"] = "Details";
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
 }
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
 
 <h1>Duel Details</h1>
 
@@ -14,7 +25,7 @@
     @foreach (var participant in Model.Participants)
     {
         <li>
-            Username: @participant.Username 
+            @participant.Username 
             @if (participant.IsWinner.Value)
             {
                 <span>(Winner)</span>

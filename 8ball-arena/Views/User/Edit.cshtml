@@ -5,6 +5,12 @@
 <link href="~/css/Shared/DragDrop.css" rel="stylesheet" asp-append-version="true" />
 
 <h2>Edit Profile</h2>
+
+@if (TempData["Error"] != null)
+{
+	<div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 @using (Html.BeginForm("Edit", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()

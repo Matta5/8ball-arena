@@ -1,6 +1,7 @@
 ﻿using BLL.Interfaces;
 using BLL.DTOs;
 using BLL.Exceptions;
+using BLL.Exceptions.User;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 
@@ -46,6 +47,10 @@ namespace DAL
                     }
                 }
             }
+            catch (NotFoundException ex)
+            {
+                throw ex;
+            }
             catch (SqlException sqlEx)
             {
                 throw new UserRepositoryException("Database error occurred while fetching user by ID.", sqlEx);
@@ -72,11 +77,6 @@ namespace DAL
                     s.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if (!reader.HasRows)
-                        {
-                            throw new UserRepositoryException("User not found.");
-                        }
-
                         reader.Read();
                         return MapUserDTO(reader);
                     }
@@ -92,7 +92,6 @@ namespace DAL
             }
         }
 
-        // get user count bij username please
         public bool CheckIfUsernameExists(string username)
         {
             try
@@ -136,6 +135,7 @@ namespace DAL
                     }
                 }
             }
+
             catch (Exception ex)
             {
                 throw new UserRepositoryException("An error occurred while fetching all users.", ex);
@@ -266,7 +266,6 @@ namespace DAL
             }
         }
 
-        // Utility method to map SqlDataReader to UserDTO
         private UserDTO MapUserDTO(SqlDataReader reader)
         {
             return new UserDTO

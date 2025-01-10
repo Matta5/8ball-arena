@@ -3,14 +3,16 @@
 <h2>Create Duel</h2>
 
 <!-- Display general errors at the top -->
-@if (!ViewData.ModelState.IsValid)
+@if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <p>@error.ErrorMessage</p>
-        }
+        @TempData["Error"]
     </div>
+}
+
+@if (ViewBag.LoginError != null)
+{
+	<div class="alert alert-danger">@ViewBag.LoginError</div>
 }
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">

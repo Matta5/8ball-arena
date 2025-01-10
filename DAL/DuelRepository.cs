@@ -1,8 +1,11 @@
 ﻿using BLL.Interfaces;
+using BLL.Exceptions.Duel;
 using BLL.DTOs;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using System.Linq.Expressions;
+using BLL.Exceptions.User;
+using BLL.Exceptions;
 
 namespace DAL
 {
@@ -23,44 +26,63 @@ namespace DAL
 
         public DuelDTO GetDuelById(int duelId)
         {
-            DuelDTO duel = null;
-
-            using (SqlConnection s = new SqlConnection(connectionString))
+            try
             {
-                string query = @"SELECT d.Id, d.Status, d.DateCreated
-                         FROM [Duels] d
-                         WHERE d.Id = @DuelId;";
-                SqlCommand cmd = new SqlCommand(query, s);
-                cmd.Parameters.AddWithValue("@DuelId", duelId);
+                DuelDTO duel = null;
 
-                s.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlConnection s = new SqlConnection(connectionString))
                 {
-                    if (reader.Read())
+                    string query = @"SELECT d.Id, d.Status, d.DateCreated
+                             FROM [Duels] d
+                             WHERE d.Id = @DuelId;";
+                    SqlCommand cmd = new SqlCommand(query, s);
+                    cmd.Parameters.AddWithValue("@DuelId", duelId);
+
+                    s.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        duel = new DuelDTO
+                        if (reader.Read())
                         {
-                            Id = reader.GetInt32(0),
-                            Status = reader.GetString(1),
-                            DateCreated = reader.GetDateTime(2),
-                            Participants = GetParticipantsByDuelId(reader.GetInt32(0))
-                        };
+                            duel = new DuelDTO
+                            {
+                                Id = reader.GetInt32(0),
+                                Status = reader.GetString(1),
+                                DateCreated = reader.GetDateTime(2),
+                                Participants = GetParticipantsByDuelId(reader.GetInt32(0))
+                            };
+                        }
                     }
                 }
-            }
 
-            return duel;
+                if (duel == null)
+                {
+                    throw new NotFoundException($"Duel with ID {duelId} was not found.");
+                }
+
+                return duel;
+            }
+            catch (NotFoundException)
+            {
+                throw; // Propagate specific not found error
+            }
+            catch (Exception ex)
+            {
+                throw new DuelRepositoryException("An error occurred while retrieving the duel by ID.", ex);
+            }
         }
+
 
         public List<DuelDTO> GetDuelsByUserId(int userId)
         {
-            var duels = new List<DuelDTO>();
-
-            using (SqlConnection s = new SqlConnection(connectionString))
+            try
             {
-                s.Open();
+                var duels = new List<DuelDTO>();
 
-                string query = @"
+                using (SqlConnection s = new SqlConnection(connectionString))
+                {
+                    s.Open();
+
+                    string query = @"
             SELECT 
                 d2.Id AS DuelId,
                 d2.Status AS DuelStatus,
@@ -78,140 +100,190 @@ namespace DAL
             )
             ORDER BY d2.DateCreated DESC;";
 
-                SqlCommand cmd = new SqlCommand(query, s);
-                cmd.Parameters.AddWithValue("@UserId", userId);
+                    SqlCommand cmd = new SqlCommand(query, s);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    Dictionary<int, DuelDTO> duelMap = new Dictionary<int, DuelDTO>();
-
-                    while (reader.Read())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        int duelId = reader.GetInt32(reader.GetOrdinal("DuelId"));
+                        Dictionary<int, DuelDTO> duelMap = new Dictionary<int, DuelDTO>();
 
-                        if (!duelMap.ContainsKey(duelId))
+                        while (reader.Read())
                         {
-                            duelMap[duelId] = new DuelDTO
+                            int duelId = reader.GetInt32(reader.GetOrdinal("DuelId"));
+
+                            if (!duelMap.ContainsKey(duelId))
                             {
-                                Id = duelId,
-                                Status = reader.GetString(reader.GetOrdinal("DuelStatus")),
-                                DateCreated = reader.GetDateTime(reader.GetOrdinal("DuelDateCreated")),
-                                Participants = new List<DuelParticipantDTO>()
+                                duelMap[duelId] = new DuelDTO
+                                {
+                                    Id = duelId,
+                                    Status = reader.GetString(reader.GetOrdinal("DuelStatus")),
+                                    DateCreated = reader.GetDateTime(reader.GetOrdinal("DuelDateCreated")),
+                                    Participants = new List<DuelParticipantDTO>()
+                                };
+                            }
+
+                            var participant = new DuelParticipantDTO
+                            {
+                                UserId = reader.GetInt32(reader.GetOrdinal("ParticipantUserId")),
+                                Username = reader.GetString(reader.GetOrdinal("ParticipantUsername")),
+                                IsWinner = reader.GetBoolean(reader.GetOrdinal("ParticipantIsWinner"))
                             };
+
+                            duelMap[duelId].Participants.Add(participant);
                         }
 
-                        var participant = new DuelParticipantDTO
-                        {
-                            UserId = reader.GetInt32(reader.GetOrdinal("ParticipantUserId")),
-                            Username = reader.GetString(reader.GetOrdinal("ParticipantUsername")),
-                            IsWinner = reader.GetBoolean(reader.GetOrdinal("ParticipantIsWinner"))
-                        };
-
-                        duelMap[duelId].Participants.Add(participant);
+                        duels = duelMap.Values.ToList();
                     }
-
-                    duels = duelMap.Values.ToList();
                 }
-            }
 
-            return duels;
+                if (duels.Count == 0)
+                {
+                    throw new NotFoundException($"No duels found for user ID {userId}.");
+                }
+
+                return duels;
+            }
+            catch (NotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DuelRepositoryException("An error occurred while retrieving duels by user ID.", ex);
+            }
         }
+
 
         public List<DuelParticipantDTO> GetParticipantsByDuelId(int duelId)
         {
-            List<DuelParticipantDTO> participants = new List<DuelParticipantDTO>();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                string query = @"
+                List<DuelParticipantDTO> participants = new List<DuelParticipantDTO>();
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    string query = @"
             SELECT dp.UserId, u.Username, dp.IsWinner
             FROM DuelParticipants dp
             JOIN Users u ON dp.UserId = u.Id
             WHERE dp.DuelId = @DuelId;";
 
-                SqlCommand cmd = new SqlCommand(query, connection);
-                cmd.Parameters.AddWithValue("@DuelId", duelId);
+                    SqlCommand cmd = new SqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@DuelId", duelId);
 
-                connection.Open();
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
+                    connection.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
+                        while (reader.Read())
+                        {
                             participants.Add(new DuelParticipantDTO
                             {
                                 UserId = reader.GetInt32(0),
                                 Username = reader.GetString(1),
                                 IsWinner = reader.GetBoolean(2)
                             });
+                        }
                     }
                 }
-            }
 
-            return participants;
+                if (participants.Count == 0)
+                {
+                    throw new NotFoundException($"No participants found for duel ID {duelId}.");
+                }
+
+                return participants;
+            }
+            catch (NotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DuelRepositoryException("An error occurred while retrieving participants by duel ID.", ex);
+            }
         }
+
 
 
         public int CreateDuel(int userId1, int userId2)
         {
-            using (SqlConnection s = new SqlConnection(connectionString))
+            try
             {
-                s.Open();
-
-                using (SqlTransaction transaction = s.BeginTransaction())
+                using (SqlConnection s = new SqlConnection(connectionString))
                 {
-                    try
+                    s.Open();
+
+                    using (SqlTransaction transaction = s.BeginTransaction())
                     {
-                        // Insert the Duel
-                        string insertDuelQuery = @"INSERT INTO [Duels] (Status, DateCreated)
-                                           OUTPUT INSERTED.Id
-                                           VALUES ('Pending', @DateCreated);";
+                        try
+                        {
+                            // Insert the Duel
+                            string insertDuelQuery = @"INSERT INTO [Duels] (Status, DateCreated)
+                                       OUTPUT INSERTED.Id
+                                       VALUES ('Pending', @DateCreated);";
 
-                        SqlCommand duelCmd = new SqlCommand(insertDuelQuery, s, transaction);
-                        duelCmd.Parameters.AddWithValue("@DateCreated", DateTime.Now);
+                            SqlCommand duelCmd = new SqlCommand(insertDuelQuery, s, transaction);
+                            duelCmd.Parameters.AddWithValue("@DateCreated", DateTime.Now);
 
-                        int duelId = (int)duelCmd.ExecuteScalar();
+                            int duelId = (int)duelCmd.ExecuteScalar();
 
-                        // Insert Participants
-                        string insertParticipantQuery = @"INSERT INTO [DuelParticipants] (DuelId, UserId, IsWinner)
-                                                  VALUES (@DuelId, @UserId, @IsWinner);";
+                            // Insert Participants
+                            string insertParticipantQuery = @"INSERT INTO [DuelParticipants] (DuelId, UserId, IsWinner)
+                                              VALUES (@DuelId, @UserId, @IsWinner);";
 
-                        SqlCommand participantCmd = new SqlCommand(insertParticipantQuery, s, transaction);
-                        participantCmd.Parameters.AddWithValue("@DuelId", duelId);
-                        participantCmd.Parameters.AddWithValue("@IsWinner", false);
+                            SqlCommand participantCmd = new SqlCommand(insertParticipantQuery, s, transaction);
+                            participantCmd.Parameters.AddWithValue("@DuelId", duelId);
+                            participantCmd.Parameters.AddWithValue("@IsWinner", false);
 
-                        participantCmd.Parameters.AddWithValue("@UserId", userId1);
-                        participantCmd.ExecuteNonQuery();
-                        participantCmd.Parameters.Clear();
+                            participantCmd.Parameters.AddWithValue("@UserId", userId1);
+                            participantCmd.ExecuteNonQuery();
+                            participantCmd.Parameters.Clear();
 
-                        participantCmd.Parameters.AddWithValue("@DuelId", duelId);
-                        participantCmd.Parameters.AddWithValue("@UserId", userId2);
-                        participantCmd.Parameters.AddWithValue("@IsWinner", false);
-                        participantCmd.ExecuteNonQuery();
+                            participantCmd.Parameters.AddWithValue("@DuelId", duelId);
+                            participantCmd.Parameters.AddWithValue("@UserId", userId2);
+                            participantCmd.Parameters.AddWithValue("@IsWinner", false);
+                            participantCmd.ExecuteNonQuery();
 
-                        transaction.Commit();
+                            transaction.Commit();
 
-                        return duelId;
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
+                            return duelId;
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new DuelRepositoryException("An error occurred while creating the duel.", ex);
+            }
         }
+
 
         public void AssignWinner(int duelId, int winnerUserId)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-
-                using (SqlTransaction transaction = connection.BeginTransaction())
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    try
+                    connection.Open();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
                     {
-                        string updateParticipantsQuery = @"
+                        try
+                        {
+                            // Check if the duel exists
+                            var participants = GetParticipantsByDuelId(duelId);
+                            if (participants.All(p => p.UserId != winnerUserId))
+                            {
+                                throw new NotFoundException($"The user with ID {winnerUserId} is not a participant in duel ID {duelId}.");
+                            }
+
+                            // Update Participants
+                            string updateParticipantsQuery = @"
                     UPDATE DuelParticipants
                     SET IsWinner = CASE 
                         WHEN UserId = @WinnerUserId THEN 1
@@ -219,29 +291,40 @@ namespace DAL
                     END
                     WHERE DuelId = @DuelId;";
 
-                        SqlCommand participantsCmd = new SqlCommand(updateParticipantsQuery, connection, transaction);
-                        participantsCmd.Parameters.AddWithValue("@WinnerUserId", winnerUserId);
-                        participantsCmd.Parameters.AddWithValue("@DuelId", duelId);
-                        participantsCmd.ExecuteNonQuery();
-                        string updateDuelQuery = @"
+                            SqlCommand participantsCmd = new SqlCommand(updateParticipantsQuery, connection, transaction);
+                            participantsCmd.Parameters.AddWithValue("@WinnerUserId", winnerUserId);
+                            participantsCmd.Parameters.AddWithValue("@DuelId", duelId);
+                            participantsCmd.ExecuteNonQuery();
+
+                            string updateDuelQuery = @"
                     UPDATE Duels
                     SET Status = 'Completed'
                     WHERE Id = @DuelId;";
 
-                        SqlCommand duelCmd = new SqlCommand(updateDuelQuery, connection, transaction);
-                        duelCmd.Parameters.AddWithValue("@DuelId", duelId);
-                        duelCmd.ExecuteNonQuery();
+                            SqlCommand duelCmd = new SqlCommand(updateDuelQuery, connection, transaction);
+                            duelCmd.Parameters.AddWithValue("@DuelId", duelId);
+                            duelCmd.ExecuteNonQuery();
 
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
+                            transaction.Commit();
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
                     }
                 }
             }
+            catch (NotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DuelRepositoryException("An error occurred while assigning the winner.", ex);
+            }
         }
+
 
 
     }

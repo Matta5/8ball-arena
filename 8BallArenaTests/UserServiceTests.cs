@@ -117,7 +117,7 @@ namespace UserServiceTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DuplicateException))]
+        [ExpectedException(typeof(UserServiceException))]
         public void EditUser_UsernameExists_ShouldThrowDuplicateException()
         {
             // Arrange

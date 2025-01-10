@@ -1,5 +1,5 @@
-﻿using BLL.DTOs;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using System.ComponentModel.DataAnnotations;
+
 
 namespace _8ball_arena.Models
 {
@@ -7,6 +7,7 @@ namespace _8ball_arena.Models
     public class UserViewModel
     {
         public int Id { get; set; }
+        [Required]
         public string Username { get; set; }
         public string Email { get; set; }
         public string? ProfilePicture { get; set; }

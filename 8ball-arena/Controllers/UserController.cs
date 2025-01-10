@@ -1,9 +1,9 @@
 ﻿using BLL;
 using BLL.Exceptions;
+using BLL.Exceptions.User;
 using Microsoft.AspNetCore.Mvc;
 using BLL.DTOs;
 using _8ball_arena.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace _8ball_arena.Controllers
 {
@@ -36,11 +36,21 @@ namespace _8ball_arena.Controllers
 
 				return View(userViewModels);
 			}
-			catch (Exception ex)
+			catch (UserServiceException ex)
 			{
-				ViewData["Error"] = "An error occurred while retrieving users.";
-				return View("Error");
-			}
+				TempData["Error"] = ex.Message;
+                return View("Error");
+            }
+			catch (UserRepositoryException ex)
+			{
+				TempData["Error"] = "An error occurred while retrieving users.";
+                return View("Error");
+            }
+            catch (Exception ex)
+			{
+				TempData["Error"] = "An error occurred while retrieving users.";
+                return View("Error");
+            }
 		}
 
 		public IActionResult Details(int id)
@@ -102,9 +112,14 @@ namespace _8ball_arena.Controllers
 			{
 				return NotFound();
 			}
+			catch (UserServiceException ex)
+			{
+				TempData["Error"] = ex.Message;
+                return View("Error");
+            }
 			catch (Exception ex)
 			{
-				ViewData["Error"] = "An error occurred while retrieving user details.";
+				TempData["Error"] = "An error occurred while retrieving user details.";
 				return View("Error");
 			}
 		}
@@ -154,6 +169,11 @@ namespace _8ball_arena.Controllers
                 TempData["Error"] = ex.Message;
                 return View(user);
             }
+			catch (Exception ex)
+			{
+				TempData["Error"] = "An error occurred while creating the user.";
+				return View("Error");
+			}
         }
 
 
@@ -176,20 +196,20 @@ namespace _8ball_arena.Controllers
 
 				return View(songViewModel);
 			}
-			catch (DuplicateException ex)
-			{
-				ViewBag.Error = ex.Message;
-				return View();
-			}
 			catch (NotFoundException ex)
 			{
 				return NotFound();
 			}
 			catch (UserServiceException ex)
 			{
-				ViewData["Error"] = ex.Message;
+				TempData["Error"] = ex.Message;
 				return View();
 			}
+			catch (Exception ex)
+			{
+				TempData["Error"] = "An error occurred while retrieving the user.";
+                return View("Error");
+            }
 		}
 
 		[HttpPost]
@@ -232,23 +252,18 @@ namespace _8ball_arena.Controllers
 				userService.EditUser(id, editUserDTO);
 				return RedirectToAction(nameof(Details), new { id = id });
 			}
-			catch (DuplicateException ex)
-			{
-				ViewBag.DuplicateError = ex.Message;
-				return View(userViewModel);
-			}
 			catch (NotFoundException ex)
 			{
-				return NotFound();
-			}
+                return NotFound();
+            }
 			catch (UserServiceException ex)
 			{
-				ViewData["Error"] = ex.Message;
-				return View("Error");
+				TempData["Error"] = ex.Message;
+				return View(userViewModel);
 			}
 			catch (Exception ex)
 			{
-				ViewData["Error"] = "An error occurred while editing the user.";
+				TempData["Error"] = "An error occurred while editing the user.";
 				return View("Error");
 			}
 		}
@@ -275,7 +290,7 @@ namespace _8ball_arena.Controllers
 			}
 			catch (UserServiceException ex)
 			{
-				ViewData["Error"] = ex.Message;
+				TempData["Error"] = ex.Message;
 				return View("Error");
 			}
 		}
@@ -306,7 +321,7 @@ namespace _8ball_arena.Controllers
 			}
 			catch (UserServiceException ex)
 			{
-				ViewData["Error"] = ex.Message;
+				TempData["Error"] = ex.Message;
 				return View(model);
 			}
 		}

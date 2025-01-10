@@ -1,4 +1,4 @@
-﻿namespace BLL.Exceptions;
+﻿namespace BLL.Exceptions.User;
 
 public class UserRepositoryException : Exception
 {

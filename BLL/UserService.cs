@@ -1,6 +1,7 @@
 ﻿using BLL.Interfaces;
 using BLL.DTOs;
 using BLL.Exceptions;
+using BLL.Exceptions.User;
 using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,6 +21,10 @@ public class UserService
         try
         {
             return userRepository.GetAllUsers();
+        }
+        catch (UserRepositoryException ex)
+        {
+            throw new UserServiceException(ex.Message, ex);
         }
         catch (Exception ex)
         {
@@ -153,11 +158,6 @@ public class UserService
 
     public void EditUser(int id, EditUserDTO user)
     {
-        if (id <= 0)
-        {
-            throw new ArgumentException("Invalid user ID.", nameof(id));
-        }
-
         if (user == null)
         {
             throw new ArgumentNullException(nameof(user), "User cannot be null.");
@@ -172,7 +172,7 @@ public class UserService
         {
             if (userRepository.GetUserByUsername(user.Username) != null)
             {
-                throw new DuplicateException("Username already exists.");
+                throw new UserServiceException("Username already exists.");
             }
 
             var existingUser = userRepository.GetUserById(id);
@@ -183,17 +183,17 @@ public class UserService
 
             userRepository.EditUser(id, user);
         }
-        catch (DuplicateException)
-        {
-            throw;
-        }
         catch (NotFoundException)
         {
-            throw;
+            throw new NotFoundException("User not found.");
         }
-        catch (UserServiceException)
+        catch (UserServiceException ex)
         {
             throw;
+        }
+        catch (UserRepositoryException ex)
+        {
+            throw new UserServiceException(ex.Message, ex);
         }
         catch (Exception ex)
         {
