@@ -186,6 +186,11 @@ namespace _8ball_arena.Controllers
 			{
 				UserDTO u = userService.GetUserById(Id);
 
+				if (u.Id != HttpContext.Session.GetInt32("Id"))
+				{
+					return new StatusCodeResult(403);
+				}
+
 				UserViewModel songViewModel = new UserViewModel
 				{
 					Id = u.Id,
@@ -276,7 +281,12 @@ namespace _8ball_arena.Controllers
 			{
 				UserDTO user = userService.GetUserById(id);
 
-				DeleteUserViewModel deleteUserViewModel = new DeleteUserViewModel
+                if (user.Id != HttpContext.Session.GetInt32("Id"))
+                {
+                    return new StatusCodeResult(403);
+                }
+
+                DeleteUserViewModel deleteUserViewModel = new DeleteUserViewModel
 				{
 					Id = user.Id,
 					Username = user.Username

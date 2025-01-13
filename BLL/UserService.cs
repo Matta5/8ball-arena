@@ -74,9 +74,9 @@ public class UserService
             }
             return user;
         }
-        catch (NotFoundException)
+        catch (NotFoundException ex)
         {
-            throw;
+            throw ex;
         }
         catch (Exception ex)
         {
@@ -118,6 +118,11 @@ public class UserService
         if (string.IsNullOrWhiteSpace(user.Username))
         {
             throw new UserServiceException("Username cannot be null or empty.");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.Email))
+        {
+            throw new UserServiceException("Email cannot be null or empty.");
         }
 
         if (string.IsNullOrWhiteSpace(user.Password))
@@ -166,6 +171,11 @@ public class UserService
         if (string.IsNullOrWhiteSpace(user.Username))
         {
             throw new ArgumentException("Username cannot be null or empty.", nameof(user.Username));
+        }
+
+        if (string.IsNullOrWhiteSpace(user.Email))
+        {
+            throw new ArgumentException("Email cannot be null or empty.", nameof(user.Email));
         }
 
         try

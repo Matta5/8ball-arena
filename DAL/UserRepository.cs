@@ -78,6 +78,10 @@ namespace DAL
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         reader.Read();
+                        if (!reader.HasRows)
+                        {
+                            throw new NotFoundException("User not found.");
+                        }
                         return MapUserDTO(reader);
                     }
                 }

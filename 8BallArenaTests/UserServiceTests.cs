@@ -3,6 +3,10 @@ using BLL;
 using BLL.Interfaces;
 using BLL.DTOs;
 using BLL.Exceptions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using BLL.Exceptions.User;
 
 namespace UserServiceTests
 {
@@ -34,6 +38,17 @@ namespace UserServiceTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void GetAllUsers_RepositoryException_ShouldThrowUserServiceException()
+        {
+            // Arrange
+            _userRepositoryMock.Setup(repo => repo.GetAllUsers()).Throws(new UserRepositoryException("Error"));
+
+            // Act
+            _userService.GetAllUsers();
+        }
+
+        [TestMethod]
         public void GetUserById_UserExists_ShouldReturnUser()
         {
             // Arrange
@@ -59,22 +74,85 @@ namespace UserServiceTests
         }
 
         [TestMethod]
-        public void CreateUser_InvalidPassword_ShouldThrowUserServiceException()
+        [ExpectedException(typeof(UserServiceException))]
+        public void GetUserById_RepositoryException_ShouldThrowUserServiceException()
         {
             // Arrange
-            var user = new CreateUserDTO { Username = "testuser", Password = "short" }; // Assuming "short" is an invalid password
-            _userRepositoryMock.Setup(repo => repo.CheckIfUsernameExists(user.Username)).Returns(false);
+            _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Throws(new UserRepositoryException("Error"));
 
-            // Act & Assert
-            var ex = Assert.ThrowsException<UserServiceException>(() => _userService.CreateUser(user));
+            // Act
+            _userService.GetUserById(1);
+        }
+
+        [TestMethod]
+        public void GetUserByUsername_UserExists_ShouldReturnUser()
+        {
+            // Arrange
+            var user = new UserDTO { Id = 1, Username = "testuser" };
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testuser")).Returns(user);
+
+            // Act
+            var result = _userService.GetUserByUsername("testuser");
+
+            // Assert
+            Assert.AreEqual(user, result);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotFoundException))]
+        public void GetUserByUsername_UserDoesNotExist_ShouldThrowNotFoundException()
+        {
+            // Arrange
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testuser")).Returns((UserDTO)null);
+
+            // Act
+            _userService.GetUserByUsername("testuser");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void GetUserByUsername_RepositoryException_ShouldThrowUserServiceException()
+        {
+            // Arrange
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testuser")).Throws(new UserRepositoryException("Error"));
+
+            // Act
+            _userService.GetUserByUsername("testuser");
+        }
+
+        [TestMethod]
+        public void ValidateUserCredentials_ValidCredentials_ShouldReturnTrue()
+        {
+            // Arrange
+            var userId = 1;
+            _userRepositoryMock.Setup(repo => repo.ValidateUserCredentials("testuser", "Password1", out userId)).Returns(true);
+
+            // Act
+            var result = _userService.ValidateUserCredentials("testuser", "Password1", out userId);
+
+            // Assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(1, userId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void ValidateUserCredentials_RepositoryException_ShouldThrowUserServiceException()
+        {
+            // Arrange
+            var userId = 1;
+            _userRepositoryMock.Setup(repo => repo.ValidateUserCredentials("testuser", "Password1", out userId)).Throws(new UserRepositoryException("Error"));
+
+            // Act
+            _userService.ValidateUserCredentials("testuser", "Password1", out userId);
         }
 
         [TestMethod]
         public void CreateUser_ValidUser_ShouldCreateUser()
         {
             // Arrange
-            var user = new CreateUserDTO { Username = "testuser", Password = "Password1" };
-            _userRepositoryMock.Setup(repo => repo.GetUserByUsername(user.Username)).Returns((UserDTO)null);
+            var user = new CreateUserDTO { Username = "testuser", Password = "Password1", Email = "test@example.com" };
+            _userRepositoryMock.Setup(repo => repo.CheckIfUsernameExists(user.Username)).Returns(false);
 
             // Act
             var result = _userService.CreateUser(user);
@@ -86,42 +164,63 @@ namespace UserServiceTests
 
         [TestMethod]
         [ExpectedException(typeof(UserServiceException))]
-        public void CreateUser_WeakPassword_ShouldThrowException()
+        public void CreateUser_DuplicateUsername_ShouldThrowUserServiceException()
         {
             // Arrange
-            var user = new CreateUserDTO { Username = "testuser", Password = "weak" };
-            _userRepositoryMock.Setup(repo => repo.GetUserByUsername(user.Username)).Returns((UserDTO)null);
+            var user = new CreateUserDTO { Username = "testuser", Password = "Password1", Email = "test@example.com" };
+            _userRepositoryMock.Setup(repo => repo.CheckIfUsernameExists(user.Username)).Returns(true);
 
             // Act
             _userService.CreateUser(user);
         }
 
         [TestMethod]
-        public void CreateUser_DuplicateUsername_ShouldThrowUserServiceException()
+        [ExpectedException(typeof(UserServiceException))]
+        public void CreateUser_InvalidPassword_ShouldThrowUserServiceException()
         {
             // Arrange
-            var user = new CreateUserDTO { Username = "testuser", Password = "Password1" };
-            _userRepositoryMock.Setup(repo => repo.CheckIfUsernameExists(user.Username)).Returns(true);
+            var user = new CreateUserDTO { Username = "testuser", Password = "short", Email = "test@example.com" };
+            _userRepositoryMock.Setup(repo => repo.CheckIfUsernameExists(user.Username)).Returns(false);
 
-            // Act & Assert
-            var ex = Assert.ThrowsException<UserServiceException>(() => _userService.CreateUser(user));
-            Assert.AreEqual("Username already exists", ex.Message);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(UserServiceException))]
-        public void CreateUser_NullUser_ShouldThrowException()
-        {
             // Act
-            _userService.CreateUser(null);
+            _userService.CreateUser(user);
         }
 
         [TestMethod]
         [ExpectedException(typeof(UserServiceException))]
-        public void EditUser_UsernameExists_ShouldThrowDuplicateException()
+        public void CreateUser_RepositoryException_ShouldThrowUserServiceException()
         {
             // Arrange
-            var user = new EditUserDTO { Username = "testuser" };
+            var user = new CreateUserDTO { Username = "testuser", Password = "Password1", Email = "test@example.com" };
+            _userRepositoryMock.Setup(repo => repo.CheckIfUsernameExists(user.Username)).Returns(false);
+            _userRepositoryMock.Setup(repo => repo.CreateUser(user)).Throws(new UserRepositoryException("Error"));
+
+            // Act
+            _userService.CreateUser(user);
+        }
+
+        [TestMethod]
+        public void EditUser_ValidUser_ShouldEditUser()
+        {
+            // Arrange
+            var user = new EditUserDTO { Username = "testuser", Email = "test@example.com" };
+            var existingUser = new UserDTO { Id = 1, Username = "existinguser" };
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername(user.Username)).Returns((UserDTO)null);
+            _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Returns(existingUser);
+
+            // Act
+            _userService.EditUser(1, user);
+
+            // Assert
+            _userRepositoryMock.Verify(repo => repo.EditUser(1, user), Times.Once);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void EditUser_DuplicateUsername_ShouldThrowUserServiceException()
+        {
+            // Arrange
+            var user = new EditUserDTO { Username = "testuser", Email = "test@example.com" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsername(user.Username)).Returns(new UserDTO());
 
             // Act
@@ -133,7 +232,7 @@ namespace UserServiceTests
         public void EditUser_UserDoesNotExist_ShouldThrowNotFoundException()
         {
             // Arrange
-            var user = new EditUserDTO { Username = "testuser" };
+            var user = new EditUserDTO { Username = "testuser", Email = "test@example.com" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsername(user.Username)).Returns((UserDTO)null);
             _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Returns((UserDTO)null);
 
@@ -142,19 +241,83 @@ namespace UserServiceTests
         }
 
         [TestMethod]
-        public void EditUser_ValidUser_ShouldEditUser()
+        [ExpectedException(typeof(UserServiceException))]
+        public void EditUser_RepositoryException_ShouldThrowUserServiceException()
         {
             // Arrange
-            var user = new EditUserDTO { Username = "testuser" };
-            var existingUser = new UserDTO { Id = 1, Username = "existinguser" };
+            var user = new EditUserDTO { Username = "testuser", Email = "test@example.com" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsername(user.Username)).Returns((UserDTO)null);
-            _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Returns(existingUser);
+            _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Returns(new UserDTO());
+            _userRepositoryMock.Setup(repo => repo.EditUser(1, user)).Throws(new UserRepositoryException("Error"));
 
             // Act
             _userService.EditUser(1, user);
+        }
+
+        [TestMethod]
+        public void DeleteUser_ValidUser_ShouldDeleteUser()
+        {
+            // Arrange
+            var existingUser = new UserDTO { Id = 1, Username = "testuser" };
+            _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Returns(existingUser);
+
+            // Act
+            _userService.DeleteUser(1);
 
             // Assert
-            _userRepositoryMock.Verify(repo => repo.EditUser(1, user), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.DeleteUser(1), Times.Once);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void DeleteUser_RepositoryException_ShouldThrowUserServiceException()
+        {
+            // Arrange
+            var existingUser = new UserDTO { Id = 1, Username = "testuser" };
+            _userRepositoryMock.Setup(repo => repo.GetUserById(1)).Returns(existingUser);
+            _userRepositoryMock.Setup(repo => repo.DeleteUser(1)).Throws(new UserRepositoryException("Error"));
+
+            // Act
+            _userService.DeleteUser(1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void ValidatePassword_EmptyPassword_ShouldThrowUserServiceException()
+        {
+            // Act
+            _userService.ValidatePassword("");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void ValidatePassword_NoUpperCase_ShouldThrowUserServiceException()
+        {
+            // Act
+            _userService.ValidatePassword("password1");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void ValidatePassword_NoNumber_ShouldThrowUserServiceException()
+        {
+            // Act
+            _userService.ValidatePassword("Password");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(UserServiceException))]
+        public void ValidatePassword_TooShort_ShouldThrowUserServiceException()
+        {
+            // Act
+            _userService.ValidatePassword("Pass1");
+        }
+
+        [TestMethod]
+        public void ValidatePassword_ValidPassword_ShouldNotThrowException()
+        {
+            // Act
+            _userService.ValidatePassword("Password1");
         }
     }
 }

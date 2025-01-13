@@ -94,7 +94,7 @@ namespace _8ball_arena.Controllers
                 }
                 catch (NotFoundException)
                 {
-                    TempData["Error"] = "The specified user was not found.";
+                    TempData["Error"] = "This username was not found.";
                     return View(duelViewModel);
                 }
                 catch (UserServiceException ex)
