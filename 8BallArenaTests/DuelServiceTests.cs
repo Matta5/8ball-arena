@@ -15,12 +15,15 @@ namespace DuelServiceTests
     {
         private Mock<IDuelRepository> _duelRepositoryMock;
         private DuelService _duelService;
+        private Mock<ICommentRepository> _commentRepositoryMock;
 
         [TestInitialize]
         public void Setup()
         {
             _duelRepositoryMock = new Mock<IDuelRepository>();
-            _duelService = new DuelService(_duelRepositoryMock.Object);
+
+            _commentRepositoryMock = new Mock<ICommentRepository>();
+            _duelService = new DuelService(_duelRepositoryMock.Object, _commentRepositoryMock.Object);
         }
 
         [TestMethod]

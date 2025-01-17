@@ -11,8 +11,6 @@
 	<div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-wollah als je nu niet doet
-
 @using (Html.BeginForm("Create", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
