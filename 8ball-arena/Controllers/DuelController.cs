@@ -40,7 +40,6 @@ namespace _8ball_arena.Controllers
                     Id = duelDTO.Id,
                     Status = duelDTO.Status,
                     DateCreated = duelDTO.DateCreated,
-                    ParticipantUserId = duelDTO.ParticipantUserId,
                     Participants = duelDTO.Participants.Select(p => new DuelParticipantViewModel
                     {
                         UserId = p.UserId,

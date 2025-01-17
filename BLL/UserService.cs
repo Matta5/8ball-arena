@@ -180,15 +180,9 @@ public class UserService
 
         try
         {
-            if (userRepository.GetUserByUsername(user.Username) != null)
+            if (userRepository.CheckIfUsernameExists(user.Username) == null)
             {
                 throw new UserServiceException("Username already exists.");
-            }
-
-            var existingUser = userRepository.GetUserById(id);
-            if (existingUser == null)
-            {
-                throw new NotFoundException("User not found.");
             }
 
             userRepository.EditUser(id, user);

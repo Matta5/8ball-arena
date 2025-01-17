@@ -125,9 +125,11 @@ namespace DAL
             {
                 using (SqlConnection s = new SqlConnection(connectionString))
                 {
-                    string query = @"SELECT id, username, email, password, rating, profile_picture, date_joined 
-                             FROM [Users] 
-                             ORDER BY id DESC;";
+                    string query = @"SELECT id, username, email, password, rating, profile_picture, date_joined
+                                FROM [Users]
+                                WHERE id <> 1011
+                                ORDER BY rating DESC;
+                                ;";
                     SqlCommand cmd = new SqlCommand(query, s);
                     s.Open();
                     using (SqlDataReader reader = cmd.ExecuteReader())

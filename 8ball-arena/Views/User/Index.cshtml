@@ -1,48 +1,42 @@
 ﻿@model IEnumerable<_8ball_arena.Models.UserViewModel>
 
 @{
-	ViewData["Title"] = "Index";
+    ViewData["Title"] = "Index";
 }
 <body>
-	<p>
-		<a asp-action="Create">Create New</a>
-	</p>
-	<table class="table table-black container mx-auto mt-10">
-		<thead>
-			<tr class="text-white">
-				<th>@Html.DisplayNameFor(model => model.Id)</th>
-				<th>@Html.DisplayNameFor(model => model.Username)</th>
-				<th>@Html.DisplayNameFor(model => model.Email)</th>
-				<th>@Html.DisplayNameFor(model => model.Wins)</th>
-				<th>@Html.DisplayNameFor(model => model.Rating)</th>
-				<th>@Html.DisplayNameFor(model => model.GamesPlayed)</th>
-				<th>@Html.DisplayNameFor(model => model.ProfilePicture)</th>
-				<th>@Html.DisplayNameFor(model => model.DateJoined)</th>
-				<th class=" mr-10">
-					Actions
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var item in Model)
-			{
-				<tr class="text-white">
-					<td>@Html.DisplayFor(modelItem => item.Id)</td>
-					<td>@Html.DisplayFor(modelItem => item.Username)</td>
-					<td>@Html.DisplayFor(modelItem => item.Email)</td>
-					<td>@Html.DisplayFor(modelItem => item.Wins)</td>
-					<td>@Html.DisplayFor(modelItem => item.Rating)</td>
-					<td>@Html.DisplayFor(modelItem => item.GamesPlayed)</td>
-					<td><img src="@item.ProfilePicture" alt="Profile Picture" style="max-width: 100px; max-height: 100px;" /></td>
-					<td>@item.DateJoined.ToString("yyyy-MM-dd")</td>
-					<td>
-						@Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-						@Html.ActionLink("Details", "Details", new { id = item.Id }) |
-						@Html.ActionLink("Delete", "Delete", new { id = item.Id })
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    <table class="table table-black container mx-auto mt-10">
+        <thead>
+            <tr class="text-white">
+                <th>@Html.DisplayNameFor(model => model.ProfilePicture)</th>
+                <th>@Html.DisplayNameFor(model => model.Username)</th>
+                <th>@Html.DisplayNameFor(model => model.Rating)</th>
+                <th>@Html.DisplayNameFor(model => model.DateJoined)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="text-white clickable-row" data-href="@Url.Action("Details", "User", new { id = item.Id })" style="cursor: pointer;">
+                    <td><img src="@item.ProfilePicture" alt="Profile Picture" style="max-width: 100px; max-height: 100px;" /></td>
+                    <td>@Html.DisplayFor(modelItem => item.Username)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Rating)</td>
+                    <td>@item.DateJoined.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </body>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Add click event to rows with the class 'clickable-row'
+        document.querySelectorAll(".clickable-row").forEach(function (row) {
+            row.addEventListener("click", function () {
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>
