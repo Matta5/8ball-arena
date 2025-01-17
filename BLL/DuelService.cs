@@ -2,16 +2,19 @@
 using BLL.Exceptions;
 using BLL.Exceptions.Duel;
 using System;
+using BLL.DTOs;
 
 namespace BLL
 {
     public class DuelService
     {
         private readonly IDuelRepository _duelRepository;
+        private readonly ICommentRepository _commentRepository;
 
-        public DuelService(IDuelRepository duelRepository)
+        public DuelService(IDuelRepository duelRepository, ICommentRepository commentRepository)
         {
             _duelRepository = duelRepository ?? throw new ArgumentNullException(nameof(duelRepository));
+            _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
         }
 
         public DuelDTO GetDuelById(int duelId)
@@ -97,6 +100,16 @@ namespace BLL
             {
                 throw new DuelServiceException("An unexpected error occurred while assigning the winner.", ex);
             }
+        }
+
+        public List<CommentDTO> GetCommentsByDuelId(int duelId)
+        {
+            return _commentRepository.GetCommentsByDuelId(duelId);
+        }
+
+        public void AddComment(CommentDTO comment)
+        {
+            _commentRepository.AddComment(comment);
         }
     }
 }

@@ -45,6 +45,14 @@ namespace _8ball_arena.Controllers
                         UserId = p.UserId,
                         Username = p.Username,
                         IsWinner = p.IsWinner
+                    }).ToList(),
+                    Comments = duelService.GetCommentsByDuelId(id).Select(c => new CommentViewModel
+                    {
+                        Id = c.Id,
+                        UserId = c.UserId,
+                        DuelId = c.DuelId,
+                        Text = c.Text,
+                        DateTime = c.DateTime
                     }).ToList()
                 };
 
@@ -143,5 +151,44 @@ namespace _8ball_arena.Controllers
                 return RedirectToAction("Details", "Duel", new { id });
             }
         }
+
+        // POST: DuelController/AddComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddComment(DuelViewModel duelViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var sessionId = HttpContext.Session.GetInt32("Id");
+                if (sessionId == null)
+                {
+                    TempData["Error"] = "You must be logged in to add a comment.";
+                    return RedirectToAction("Details", "Duel", new { id = duelViewModel.Id });
+                }
+
+                try
+                {
+                    var commentDTO = new CommentDTO
+                    {
+                        UserId = sessionId.Value,
+                        DuelId = duelViewModel.Id,
+                        Text = duelViewModel.NewCommentText,
+                        DateTime = DateTime.Now
+                    };
+
+                    duelService.AddComment(commentDTO);
+                    return RedirectToAction("Details", "Duel", new { id = duelViewModel.Id });
+                }
+                catch (Exception)
+                {
+                    TempData["Error"] = "An unexpected error occurred while adding the comment.";
+                    return RedirectToAction("Details", "Duel", new { id = duelViewModel.Id });
+                }
+            }
+
+            TempData["Error"] = "The provided comment data is invalid.";
+            return RedirectToAction("Details", "Duel", new { id = duelViewModel.Id });
+        }
+
     }
 }

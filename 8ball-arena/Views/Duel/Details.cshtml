@@ -51,3 +51,28 @@
 		<button type="submit" class="btn btn-outline-light">Assign winner</button>
 	</form>
 }
+
+<div>
+    <h4>Comments</h4>
+    <ul>
+        @foreach (var comment in Model.Comments)
+        {
+            <li>
+                <strong>@comment.UserId</strong>: @comment.Text <em>@comment.DateTime</em>
+            </li>
+        }
+    </ul>
+</div>
+
+<div>
+    <h4>Add Comment</h4>
+    <form asp-action="AddComment" method="post">
+        <input type="hidden" asp-for="Id" value="@Model.Id" />
+        <input type="hidden" asp-for="Status" value="@Model.Status" />
+        <div class="form-group">
+            <label asp-for="NewCommentText"></label>
+            <textarea asp-for="NewCommentText" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Comment</button>
+    </form>
+</div>
